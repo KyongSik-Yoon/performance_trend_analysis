@@ -2,7 +2,7 @@
 // public/config.js에서 로드된 window.PTA_CONFIG 값을 참조합니다.
 export const config = {
   // API 프록시용 베이스 URL (개발 환경 및 특정 API 호출 시 사용)
-  BASE_URL: window.PTA_CONFIG?.BASE_URL || 'https://13.158.36.15:8443/',
+  BASE_URL: window.PTA_CONFIG?.BASE_URL || 'https://demo.jennifersoft.co.jp/',
 
   // API 서버의 도메인 또는 IP (프록시를 사용하지 않고 직접 호출할 경우 적용)
   API_DOMAIN: window.PTA_CONFIG?.API_DOMAIN || '',
