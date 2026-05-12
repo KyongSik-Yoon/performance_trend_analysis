@@ -11,9 +11,9 @@
 
 ```javascript
 window.PTA_CONFIG = {
-  BASE_URL: 'https://13.158.36.15:8443/',
+  BASE_URL: '<your_jennifer_server_ip>',
   API_DOMAIN: '', // Nginx 프록시 사용 시 비워둠
-  TOKEN: 'your_token_here'
+  TOKEN: '<your_token>'
 };
 ```
 
@@ -54,7 +54,7 @@ server {
     # [2] API 프록시 설정 (CORS 문제 해결)
     # 앱에서 호출하는 /api/... 요청을 실제 API 서버로 전달합니다.
     location /api/ {
-        proxy_pass https://13.158.36.15:8443/api/; # 실제 JENNIFER OpenAPI 서버 주소
+        proxy_pass https://<your_jennifer_server_ip>/api/; # 실제 JENNIFER OpenAPI 서버 주소
         
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -100,7 +100,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 💡 팁: HTTPS 적용 (Certbot)
+## HTTPS 적용
 보안을 위해 HTTPS를 적용하려면 `certbot`을 사용하는 것이 가장 간단합니다.
 ```bash
 sudo apt-get install certbot python3-certbot-nginx
