@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="../pta/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../pta/config.js"></script>
+  <title data-i18n="jvm.pageTitle">JVM GC 지연 영향 분석기</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css"
+    rel="stylesheet" crossorigin />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin></script>
+
+  <link rel="stylesheet" href="../src/style.css">
+  <style>
+    /* Custom style overrides from existing layout templates */
+    .recommendation-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .recommendation-header {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .recommendation-content {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .status-badge.healthy {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #16a34a;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-badge.warning {
+      background-color: rgba(234, 179, 8, 0.15);
+      color: #ca8a04;
+      border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    .status-badge.danger {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #dc2626;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .recommendation-list {
+      margin-top: 1rem;
+      padding-left: 1.25rem;
+    }
+
+    .recommendation-list li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <main class="main-content">
+      <!-- Loading Overlay -->
+      <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader-content">
+          <div class="premium-spinner"></div>
+          <p class="loading-text" data-i18n="loading">데이터 로딩 중...</p>
+        </div>
+      </div>
+
+      <!-- Navigation & Header -->
+      <div class="back-btn-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="../" class="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span data-i18n="backToLab">실험 공간으로 돌아가기</span>
+        </a>
+        <select id="langSelect" class="form-select lang-switcher" aria-label="Language">
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <header class="dashboard-header" style="margin-bottom: 1.5rem;">
+        <h1 data-i18n="jvm.pageTitle" style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary);">JVM GC 지연 영향 분석기</h1>
+      </header>
+
+      <!-- Filters Section -->
+      <section class="filters-card">
+        <div class="filter-group domain-filter-group">
+          <label data-i18n="filter.domain">도메인</label>
+          <div id="hierarchicalDomainSelector" class="hierarchical-selector">
+            <div class="breadcrumb-container" id="breadcrumbContainer">
+              <div class="breadcrumb-item loading" data-i18n="loading">데이터 로딩 중...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group instance-filter-group" id="instanceFilterArea">
+          <label data-i18n="target.instance">인스턴스</label>
+          <select id="instanceSelect" class="form-select">
+            <option value="" data-i18n="select.allInstances">인스턴스 전체</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label data-i18n="summary.period">기간</label>
+          <select id="periodSelect" class="form-select" style="width: 150px;">
+            <option value="24">Last 24 Hours</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Summary Info Cards -->
+      <section class="summary-cards" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #3b82f6;">⚡</span>
+            <h3 data-i18n="jvm.throughput">JVM 가용 처리량 (Throughput)</h3>
+          </div>
+          <div class="summary-value" id="throughputValue">-</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #f59e0b;">⏳</span>
+            <h3 data-i18n="jvm.avgPause">평균 GC 지연 시간 (Pause Time)</h3>
+          </div>
+          <div class="summary-value" id="avgPauseValue">-</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #ef4444;">🔄</span>
+            <h3 data-i18n="jvm.gcFreq">GC 발생 빈도 (Frequency)</h3>
+          </div>
+          <div class="summary-value" id="gcFreqValue">-</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #10b981;">🛡️</span>
+            <h3 data-i18n="jvm.gcImpact">GC 성능 영향도</h3>
+          </div>
+          <div class="summary-value" id="gcImpactValue">
+            <span class="status-badge healthy" data-i18n="jvm.statusHealthy">안정 (Healthy)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Chart Card -->
+      <section class="charts-grid">
+        <div class="chart-card single-chart-card">
+          <div class="chart-header">
+            <h3 data-i18n="jvm.chartTitle" style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">응답시간 vs JVM 힙 메모리 추세 (24시간)</h3>
+          </div>
+          <div class="chart-container" style="height: 380px;">
+            <canvas id="jvmGcChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Proactive Recommendation Panel -->
+      <section class="recommendation-panel">
+        <div class="recommendation-header">
+          <span>⚙️</span>
+          <span data-i18n="jvm.recommendText">JVM GC 예방 튜닝 권장안</span>
+        </div>
+        <div class="recommendation-content" id="recommendationContent">
+          <p data-i18n="jvm.explanation">※ 본 분석은 실제 수집된 힙 사용량(heap_usage)과 시스템 CPU 부하(sys_cpu) 메트릭을 기반으로 JVM 가비지 컬렉션(GC)의 정지 시간(Pause Time) 및 처리 가용성(Throughput)을 수리 통계적으로 추정하여 성능 영향도를 진단합니다.</p>
+          <ul class="recommendation-list" id="recommendationList">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="../src/jvm.js"></script>
+</body>
+
+</html>

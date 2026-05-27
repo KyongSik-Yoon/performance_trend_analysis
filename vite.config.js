@@ -38,7 +38,8 @@ export default defineConfig(() => {
                     report: 'report/index.html',
                     leak: 'leak/index.html',
                     consolidation: 'consolidation/index.html',
-                    drift: 'drift/index.html'
+                    drift: 'drift/index.html',
+                    jvm: 'jvm/index.html'
                 },
                 output: {
                     entryFileNames: 'pta/asserts/[name]-[hash].js',

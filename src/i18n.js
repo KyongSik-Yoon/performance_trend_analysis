@@ -569,6 +569,14 @@ const DICT = {
   },
   'landing.driftBtn': { ja: '実験を開始する', ko: '실험 시작하기', en: 'Start Experiment' },
 
+  'landing.jvmTitle': { ja: 'JVM GC 一時停止影響分析器', ko: 'JVM GC 지연 영향 분석기', en: 'JVM GC Pause & Throughput Analyzer' },
+  'landing.jvmDesc': {
+    ja: '収集されたCPUとヒープメトリクスを分析し、JVM GCの一時停止時間（Pause Time）とスループット（Throughput）を計算し、推奨GC設定を提示します。',
+    ko: '실제 수집된 CPU 및 힙 메트릭을 분석하여 JVM GC의 일시 정지 시간(Pause Time)과 애플리케이션 가용 처리량(Throughput)을 정밀 계산하고 권장 GC 설정을 제시합니다.',
+    en: 'Analyzes collected CPU and Heap metrics to calculate JVM GC pause times, application throughput, and recommend optimal GC configurations.'
+  },
+  'landing.jvmBtn': { ja: '実験を開始する', ko: '실험 시작하기', en: 'Start Experiment' },
+
   // Leak subpage
   'leak.pageTitle': { ja: '100日メモリーリー크検出', ko: '100일 메모리 누수 감지', en: '100-Day Memory Leak Auditor' },
   'leak.uptime': { ja: '連続起動日数 (Uptime)', ko: '연속 기동 일수 (Uptime)', en: 'Continuous Uptime' },
@@ -601,6 +609,23 @@ const DICT = {
   'drift.status': { ja: 'ドリフト診断ステータス', ko: '드리프트 진단 상태', en: 'Drift Diagnosis Status' },
   'drift.chartTitle': { ja: '応答時間確率密度(Log-Normal)分布比較', ko: '응답시간 확률밀도(Log-Normal) 분포 비교', en: 'Response Time Probability Density (Log-Normal) Comparison' },
   'drift.causeTitle': { ja: '性能ドリフト根本原因分析', ko: '성능 드리프트 근본 원인 분석', en: 'Performance Drift Root Cause Analysis' },
+
+  // JVM subpage
+  'jvm.pageTitle': { ja: 'JVM GC 一時停止影響分析器', ko: 'JVM GC 지연 영향 분석기', en: 'JVM GC Pause & Throughput Analyzer' },
+  'jvm.throughput': { ja: 'JVM 処理効率 (Throughput)', ko: 'JVM 가용 처리량 (Throughput)', en: 'JVM Throughput' },
+  'jvm.avgPause': { ja: '平均 GC 一時停止時間 (Pause Time)', ko: '평균 GC 지연 시간 (Pause Time)', en: 'Avg GC Pause Time' },
+  'jvm.gcFreq': { ja: 'GC 発生頻度', ko: 'GC 발생 빈도 (Frequency)', en: 'GC Frequency' },
+  'jvm.gcImpact': { ja: 'GC 性能影響도', ko: 'GC 성능 영향도 (Impact)', en: 'GC Performance Impact' },
+  'jvm.chartTitle': { ja: '応答時間 vs JVM ヒープメモリー推移 (24時間)', ko: '응답시간 vs JVM 힙 메모리 추세 (24시간)', en: 'Response Time vs JVM Heap Memory Trend (24 Hours)' },
+  'jvm.recommendText': { ja: 'JVM GC 予防チューニング推奨事項', ko: 'JVM GC 예방 튜닝 권장안', en: 'JVM GC Preventive Tuning Recommendations' },
+  'jvm.explanation': {
+    ja: '※本分析は、実際に収集されたヒープ使用量(heap_usage)とシステムCPU負荷(sys_cpu)メトリクスに基づき、JVMガベージコレクション(GC)の一時停止時間(Pause Time)および処理能力(Throughput)を数理統計的に推定して性能影響度を診断します。',
+    ko: '※ 본 분석은 실제 수집된 힙 사용량(heap_usage)과 시스템 CPU 부하(sys_cpu) 메트릭을 기반으로 JVM 가비지 컬렉션(GC)의 정지 시간(Pause Time) 및 처리 가용성(Throughput)을 수리 통계적으로 추정하여 성능 영향도를 진단합니다.',
+    en: '※ This analysis estimates JVM Garbage Collection (GC) Pause Time and Application Throughput using real heap_usage and sys_cpu metrics to diagnose GC-related performance impacts.'
+  },
+  'jvm.statusHealthy': { ja: '安全 (Healthy)', ko: '안정 (Healthy)', en: 'Healthy' },
+  'jvm.statusWarning': { ja: '警戒 (Warning)', ko: '경계 (Warning)', en: 'Warning' },
+  'jvm.statusDanger': { ja: '危険 (Critical)', ko: '위험 (Critical)', en: 'Critical' },
 
   'data.simulatedWarning': {
     ja: '⚠️ 十分な履歴データがAPIから取得できなかったため、統計シミュレーションデータを使用しています。',
