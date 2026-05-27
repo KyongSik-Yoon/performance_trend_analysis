@@ -142,11 +142,12 @@
       color: var(--text-secondary);
     }
 
-    .verdict-box strong {
+    .verdict-title {
       color: var(--text-primary);
       display: block;
       margin-bottom: 0.5rem;
       font-size: 0.95rem;
+      font-weight: 700;
     }
 
     /* Back Button */
@@ -297,7 +298,7 @@
 
           <!-- Diagnostic Conclusion -->
           <div class="verdict-box">
-            <strong data-i18n="capacity.reportCardHeader">診断レポート</strong>
+            <div class="verdict-title" data-i18n="capacity.reportCardHeader">診断レポート</div>
             <p id="verdictDescription" data-i18n="capacity.defaultDescription">
               データを読み込み中か、十分なデータがありません。インスタンスを選択すると分析が開始されます。
             </p>
