@@ -443,41 +443,37 @@ async function loadData() {
     }
   }
 
-  // 2. 가상 시뮬레이션 폴백
+  // 2. 가상 시뮬레이션 폴백 제거 (충분한 데이터가 없으면 조회 결과도 없도록 수정)
   if (!realDataFetched) {
-    let leakRate = 0.8;
-    let initBaseline = 980;
-    uptimeDays = 12;
+    uptimeValue.textContent = '-';
+    slopeValue.textContent = '-';
+    daysToOomValue.textContent = '-';
+    restartStatusValue.innerHTML = `<span class="drift-status-badge stable">${t('heatmap.noDataShort')}</span>`;
     
-    if (selectedInstanceId && selectedInstanceId.endsWith('1')) {
-      leakRate = 4.8;
-      initBaseline = 1120;
-      uptimeDays = 82;
-    } else if (selectedInstanceId && selectedInstanceId.endsWith('2')) {
-      leakRate = 22.5;
-      initBaseline = 850;
-      uptimeDays = 142;
+    recommendationList.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">${t('heatmap.noData')}</div>`;
+
+    if (heapChartInstance) {
+      heapChartInstance.destroy();
+      heapChartInstance = null;
+    }
+    
+    const canvas = document.getElementById('heapLeakChart');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(t('heatmap.noData'), canvas.width / 2, canvas.height / 2);
     }
 
-    unit = 'MB';
-    maxHeap = 4096;
-    rawHeapFootprints = [];
-
-    for (let i = 0; i < totalPoints; i++) {
-      const progressDays = uptimeDays - (totalPoints - 1) + i;
-      let postGcMin = initBaseline + (progressDays * leakRate);
-      postGcMin += (Math.sin(i / 3) * 15) + (Math.cos(i / 1.5) * 5);
-      postGcMin = Math.min(maxHeap - 50, postGcMin);
-      rawHeapFootprints.push(Math.round(postGcMin));
-    }
-  }
-
-  if (simulatedWarningBanner) {
-    if (realDataFetched) {
+    if (simulatedWarningBanner) {
       simulatedWarningBanner.classList.add('hidden');
-    } else {
-      simulatedWarningBanner.classList.remove('hidden');
     }
+
+    if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    return;
   }
 
   // 3. 선형 회귀 분석

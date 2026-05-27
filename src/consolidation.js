@@ -164,11 +164,11 @@ async function loadInstancesAndMetrics(domainId) {
         }
 
         if (profile.length < 12) {
-          profile = generateRealisticCpuProfile(ins.instanceId, index);
+          return null; // Insufficient telemetry, filter out
         }
 
         while (profile.length < 24) {
-          profile.push(Math.round(10 + Math.random() * 20));
+          profile.push(0);
         }
         if (profile.length > 24) {
           profile = profile.slice(0, 24);
@@ -182,22 +182,17 @@ async function loadInstancesAndMetrics(domainId) {
           color: colors[index % colors.length]
         };
       } catch (err) {
-        console.warn(`Failed to fetch CPU for instance ${ins.instanceId}, generating simulated profile.`, err);
-        return {
-          id: String(ins.instanceId),
-          name: ins.name,
-          cost: 2400,
-          cpuProfile: generateRealisticCpuProfile(ins.instanceId, index),
-          color: colors[index % colors.length]
-        };
+        console.warn(`Failed to fetch CPU for instance ${ins.instanceId}`, err);
+        return null;
       }
     });
 
-    activeServers = await Promise.all(fetchPromises);
-    realDataFetched = anyRealInstanceData;
+    const results = await Promise.all(fetchPromises);
+    activeServers = results.filter(item => item !== null);
+    realDataFetched = activeServers.length > 0 && anyRealInstanceData;
   } catch (error) {
-    console.warn('Falling back to default MOCK_SERVERS due to error:', error);
-    activeServers = JSON.parse(JSON.stringify(MOCK_SERVERS));
+    console.warn('Failed to load instances or CPU metrics:', error);
+    activeServers = [];
     realDataFetched = false;
   }
 
@@ -208,11 +203,7 @@ async function loadInstancesAndMetrics(domainId) {
   }
 
   if (simulatedWarningBanner) {
-    if (realDataFetched) {
-      simulatedWarningBanner.classList.add('hidden');
-    } else {
-      simulatedWarningBanner.classList.remove('hidden');
-    }
+    simulatedWarningBanner.classList.add('hidden'); // Never show simulated data banner
   }
 
   renderServerList();
@@ -512,6 +503,37 @@ function loadData() {
 
     // 1. 선택된 서버 목록 필터링
     const selectedServers = activeServers.filter(srv => selectedServerIds.includes(srv.id));
+
+    if (!realDataFetched || selectedServers.length === 0) {
+      savingsValue.textContent = '-';
+      contentionValue.innerHTML = `<span class="contention-low">-</span>`;
+      peakCpuValue.textContent = '-';
+
+      if (chartBeforeInstance) {
+        chartBeforeInstance.destroy();
+        chartBeforeInstance = null;
+      }
+      if (chartAfterInstance) {
+        chartAfterInstance.destroy();
+        chartAfterInstance = null;
+      }
+
+      ['chartBeforeConsolidation', 'chartAfterConsolidation'].forEach(id => {
+        const canvas = document.getElementById(id);
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.font = '14px sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(t('heatmap.noData'), canvas.width / 2, canvas.height / 2);
+        }
+      });
+
+      if (loadingOverlay) loadingOverlay.classList.add('hidden');
+      return;
+    }
 
     // 2. 통합 전 개별 차트용 데이터셋 구성
     const beforeDatasets = selectedServers.map(srv => ({

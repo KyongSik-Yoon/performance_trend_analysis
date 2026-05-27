@@ -399,34 +399,45 @@ async function loadData() {
     }
   }
 
-  let driftMs = 0;
-  if (realDataFetched) {
-    const paramsA = estimateLogNormalParams(realDataA, 160);
-    const paramsB = estimateLogNormalParams(realDataB, 200);
-    muA = paramsA.mu;
-    sigmaA = paramsA.sigma;
-    muB = paramsB.mu;
-    sigmaB = paramsB.sigma;
-    driftMs = Math.round(Math.exp(muB) - Math.exp(muA));
-  } else {
-    // 2. 날짜 선택 차이에 따른 가변적인 드리프트 값 도출 (안정적인 느낌 속에서 날짜별 미세변화 연출)
-    const timeDiff = Math.abs(periodBDate.getTime() - periodADate.getTime());
-    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
-    // 날짜별로 고정된 유사 난수 시드 결정
-    const seed = (dayDiff % 7) * 4.2;
-    const selectedDomainId = domainId || '1001';
-    let baseOffset = 0;
-    if (selectedDomainId === '1002') {
-      baseOffset = 30; // 1002 도메인은 기본적으로 조금 더 느림
-    }
-    driftMs = Math.round(15 + seed + baseOffset); // 15ms ~ 65ms 사이의 미세 딜레이 드리프트
+  if (!realDataFetched) {
+    avgDriftValue.textContent = '-';
+    p95DriftValue.textContent = '-';
+    shiftAmountValue.textContent = '-';
+    driftStatusValue.innerHTML = `<span class="drift-status-badge stable">${t('heatmap.noDataShort')}</span>`;
 
-    muA = 5.07;
-    sigmaA = 0.45;
-    muB = Math.log(160 + driftMs);
-    sigmaB = 0.45;
+    driftCauseList.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">${t('heatmap.noData')}</div>`;
+
+    if (driftChartInstance) {
+      driftChartInstance.destroy();
+      driftChartInstance = null;
+    }
+
+    const canvas = document.getElementById('driftChart');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(t('heatmap.noData'), canvas.width / 2, canvas.height / 2);
+    }
+
+    if (simulatedWarningBanner) {
+      simulatedWarningBanner.classList.add('hidden');
+    }
+
+    if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    return;
   }
+
+  const paramsA = estimateLogNormalParams(realDataA, 160);
+  const paramsB = estimateLogNormalParams(realDataB, 200);
+  muA = paramsA.mu;
+  sigmaA = paramsA.sigma;
+  muB = paramsB.mu;
+  sigmaB = paramsB.sigma;
+  const driftMs = Math.round(Math.exp(muB) - Math.exp(muA));
 
   // 백분위 지표 계산
   const avgA = Math.round(Math.exp(muA + (sigmaA * sigmaA) / 2));
