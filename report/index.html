@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="../pta/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../pta/config.js"></script>
+  <title data-i18n="report.pageTitle">경영진 보고용 종합 성능 리포트</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css"
+    rel="stylesheet" crossorigin />
+  <!-- Flatpickr (Date Picker) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin></script>
+  <!-- html2canvas (Image export) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <link rel="stylesheet" href="../src/style.css">
+  <style>
+    /* Report specific styles to enrich design */
+    .report-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-export:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-pdf {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-pdf:hover {
+      background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-img {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-img:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Print Paper Container */
+    .report-paper {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(20px);
+      margin-bottom: 2rem;
+      transition: background 0.3s, border-color 0.3s;
+      position: relative;
+    }
+
+    .report-header-block {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .report-title-main {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 0;
+      letter-spacing: -0.025em;
+    }
+
+    .report-meta-info {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Summary & Opinion Block */
+    .report-summary-section {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .report-summary-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .grade-badge-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .grade-badge-emblem {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      border: 4px solid currentColor;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .grade-s { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+    .grade-a { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    .grade-b { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .grade-c { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    .grade-d { color: #b91c1c; background: rgba(185, 28, 28, 0.1); }
+    .grade-f { color: #7f1d1d; background: rgba(127, 29, 29, 0.1); }
+
+    .grade-label-text {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+    }
+
+    .report-opinion-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .report-opinion-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .report-opinion-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    /* Metric Grid for Report */
+    .report-metrics-title-bar {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+      border-left: 4px solid var(--primary-color);
+      padding-left: 8px;
+    }
+
+    .report-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .report-metric-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .report-metric-box-title {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .report-metric-box-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .report-metric-box-sub {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Print styling rules */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt !important;
+      }
+
+      .app-container {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      /* Hide filters, header action buttons, lang switcher */
+      .back-btn-container,
+      .filters-card,
+      .report-actions,
+      header,
+      footer {
+        display: none !important;
+      }
+
+      .main-content {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .report-paper {
+        background: white !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        backdrop-filter: none !important;
+      }
+
+      .grade-badge-card,
+      .report-opinion-card,
+      .report-metric-box {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+      }
+
+      .report-title-main {
+        color: #0f172a !important;
+      }
+
+      .report-metric-box-value {
+        color: #0f172a !important;
+      }
+
+      .report-opinion-title {
+        color: #0f172a !important;
+      }
+
+      .report-opinion-text {
+        color: #334155 !important;
+      }
+
+      /* Page breaks prevention for printing */
+      .report-summary-section,
+      .report-metrics-grid,
+      .chart-card,
+      .detail-card {
+        page-break-inside: avoid !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <main class="main-content">
+      <!-- Loading Overlay -->
+      <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader-content">
+          <div class="premium-spinner"></div>
+          <p class="loading-text" data-i18n="report.generating">성능 데이터를 분석하여 리포트를 생성하는 중...</p>
+        </div>
+      </div>
+
+      <!-- Navigation & Header -->
+      <div class="back-btn-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="../" class="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span data-i18n="backToLab">실험 공간으로 돌아가기</span>
+        </a>
+        <select id="langSelect" class="form-select lang-switcher" aria-label="Language">
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <!-- Filters Section -->
+      <section class="filters-card">
+        <div class="filter-group domain-filter-group">
+          <label data-i18n="filter.domain">도메인</label>
+          <div id="hierarchicalDomainSelector" class="hierarchical-selector">
+            <div class="breadcrumb-container" id="breadcrumbContainer">
+              <div class="breadcrumb-item loading" data-i18n="loading">데이터 로딩 중...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group target-type-group">
+          <label data-i18n="filter.target">대상</label>
+          <div class="toggle-group">
+            <input type="radio" id="typeInstance" name="targetType" value="instance" checked>
+            <label for="typeInstance" data-i18n="target.instance">인스턴스</label>
+            <input type="radio" id="typeBusiness" name="targetType" value="business">
+            <label for="typeBusiness" data-i18n="target.business">비지니스</label>
+          </div>
+        </div>
+
+        <div class="filter-group instance-filter-group" id="instanceFilterArea">
+          <select id="instanceSelect" class="form-select">
+            <option value="" data-i18n="select.allInstances">인스턴스 전체</option>
+          </select>
+        </div>
+
+        <div class="filter-group business-filter-group hidden" id="businessFilterArea">
+          <select id="businessSelect" class="form-select">
+            <option value="" data-i18n="select.allBusinesses">비지니스 전체</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label data-i18n="summary.period">기간</label>
+          <input type="text" id="dateRangePicker" class="form-select" style="width: 210px;" placeholder="Select Date Range">
+        </div>
+      </section>
+
+      <!-- Export Action Buttons -->
+      <div class="report-actions">
+        <button id="btnExportPdf" class="btn-export btn-pdf">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span data-i18n="report.exportPdf">PDF로 출력 (인쇄)</span>
+        </button>
+        <button id="btnExportImg" class="btn-export btn-img">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span data-i18n="report.exportImg">이미지로 저장 (PNG)</span>
+        </button>
+      </div>
+
+      <!-- Report Print Container -->
+      <article class="report-paper" id="reportPrintArea">
+        <header class="report-header-block">
+          <div>
+            <h1 class="report-title-main" data-i18n="report.pageTitle">경영진 보고용 종합 성능 리포트</h1>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; margin-bottom: 0;" id="reportTargetLabel">-</p>
+          </div>
+          <div class="report-meta-info">
+            <div id="reportRange">-</div>
+            <div id="reportGeneratedTime">-</div>
+          </div>
+        </header>
+
+        <!-- Executive Grade & Opinion Section -->
+        <section class="report-summary-section">
+          <div class="grade-badge-card">
+            <span class="grade-label-text" data-i18n="report.gradeLabel">성능 평가 등급</span>
+            <div id="gradeBadge" class="grade-badge-emblem grade-s">S</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);" id="gradeScoreText">-</div>
+          </div>
+
+          <div class="report-opinion-card">
+            <h3 class="report-opinion-title" data-i18n="report.opinionHeader">
+              <span>📋</span> 종합 분석 소견 (Analysis Opinion)
+            </h3>
+            <p class="report-opinion-text" id="opinionComment">
+              성능 데이터를 읽어오는 중입니다...
+            </p>
+          </div>
+        </section>
+
+        <!-- Key Metrics Summary Grid -->
+        <h2 class="report-metrics-title-bar" data-i18n="report.metricsGridTitle">주요 성능 지표 요약</h2>
+        <section class="report-metrics-grid">
+          <div class="report-metric-box">
+            <div class="report-metric-box-title" data-i18n="report.totalHits">총 호출 수</div>
+            <div class="report-metric-box-value" id="valTotalHits">0</div>
+            <div class="report-metric-box-sub" id="subTotalHits">Hits</div>
+          </div>
+          <div class="report-metric-box">
+            <div class="report-metric-box-title" data-i18n="report.avgTps">평균 TPS</div>
+            <div class="report-metric-box-value" id="valAvgTps">0</div>
+            <div class="report-metric-box-sub" id="subAvgTps">TPS</div>
+          </div>
+          <div class="report-metric-box">
+            <div class="report-metric-box-title" data-i18n="report.responseTime">응답시간 (평균 / 최대)</div>
+            <div class="report-metric-box-value" id="valResponseTime">0 / 0</div>
+            <div class="report-metric-box-sub" id="subResponseTime">ms</div>
+          </div>
+          <div class="report-metric-box">
+            <div class="report-metric-box-title" data-i18n="report.errorRate">에러율 (평균 / 최대)</div>
+            <div class="report-metric-box-value" id="valErrorRate">0.0% / 0.0%</div>
+            <div class="report-metric-box-sub" id="subErrorRate">%</div>
+          </div>
+          <div class="report-metric-box" id="boxCpuUsage">
+            <div class="report-metric-box-title" data-i18n="report.cpuUsage">시스템 CPU (평균 / 최대)</div>
+            <div class="report-metric-box-value" id="valCpuUsage">0% / 0%</div>
+            <div class="report-metric-box-sub" id="subCpuUsage">%</div>
+          </div>
+          <div class="report-metric-box" id="boxHeapUsage">
+            <div class="report-metric-box-title" data-i18n="report.heapUsage">힙 메모리 사용률 (평균 / 최대)</div>
+            <div class="report-metric-box-value" id="valHeapUsage">0% / 0%</div>
+            <div class="report-metric-box-sub" id="subHeapUsage">%</div>
+          </div>
+        </section>
+
+        <!-- Time Series Trend Chart -->
+        <h2 class="report-metrics-title-bar" data-i18n="report.trendChartTitle">주요 성능 지표 추이 (시계열 트렌드)</h2>
+        <section class="chart-card" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; background: rgba(255, 255, 255, 0.01); margin-bottom: 2rem;">
+          <div class="chart-container" style="height: 320px; position: relative;">
+            <canvas id="reportTrendChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Anomaly Summary Table -->
+        <h2 class="report-metrics-title-bar" data-i18n="report.anomalyTitle">이상 징후 감지 이력 요약</h2>
+        <section class="detail-card" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; background: rgba(255, 255, 255, 0.01);">
+          <div class="detail-table-wrapper" style="overflow-x: auto;">
+            <table class="detail-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color);" data-i18n="th.date">날짜</th>
+                  <th style="text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color);" data-i18n="th.time">시간</th>
+                  <th style="text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color);" data-i18n="th.metricValue">메트릭 값</th>
+                  <th style="text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color);" data-i18n="anomaly.thDeviation">편차</th>
+                  <th style="text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color);" data-i18n="anomaly.thDiagnosis">분석 원인 진단</th>
+                </tr>
+              </thead>
+              <tbody id="reportAnomalyTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);" data-i18n="report.noAnomalyText">
+                    분석 기간 내에 특이한 성능 이상 징후가 감지되지 않았습니다.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script type="module" src="../src/report.js"></script>
+</body>
+
+</html>

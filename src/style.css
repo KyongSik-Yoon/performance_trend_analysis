@@ -1408,3 +1408,222 @@ body {
     height: 30px;
   }
 }
+
+/* --- Anomaly Page Custom Styles --- */
+.sensitivity-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.sensitivity-control input[type="range"] {
+  width: 150px;
+  accent-color: var(--primary-color);
+}
+.sensitivity-value {
+  font-weight: 700;
+  color: var(--primary-color);
+  min-width: 2rem;
+}
+.anomaly-row {
+  background: rgba(239, 68, 68, 0.03) !important;
+  border-left: 3px solid var(--danger-color) !important;
+}
+.anomaly-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+.anomaly-badge.critical {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+}
+.anomaly-badge.warning {
+  background: rgba(250, 204, 21, 0.1);
+  color: #d97706;
+}
+.diagnosis-text {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* --- Topology Page Custom Styles --- */
+#topologySvgContainer {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.topology-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.topo-node {
+  cursor: pointer;
+}
+
+.topo-node-bg {
+  stroke: #ffffff;
+  stroke-width: 2.5px;
+  transition: r 0.2s ease, stroke-width 0.2s ease;
+}
+
+.topo-node:hover .topo-node-bg {
+  stroke-width: 4px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+
+.topo-node.active .topo-node-bg {
+  stroke: #3b82f6;
+  stroke-width: 3.5px;
+}
+
+/* Node States */
+.topo-node.stable .topo-node-bg {
+  fill: #22c55e;
+}
+.topo-node.warning .topo-node-bg {
+  fill: #facc15;
+}
+.topo-node.danger .topo-node-bg {
+  fill: #ef4444;
+}
+
+.topo-node-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  fill: #1e293b;
+  text-anchor: middle;
+}
+
+.topo-node-icon {
+  font-family: inherit;
+  font-size: 1.1rem;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #ffffff;
+  pointer-events: none;
+}
+
+.topo-link {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke 0.35s ease, stroke-width 0.35s ease;
+}
+
+.topo-link.stable {
+  stroke: #cbd5e1;
+}
+.topo-link.warning {
+  stroke: #facc15;
+}
+.topo-link.danger {
+  stroke: #ef4444;
+}
+
+/* Flow Effect */
+.topo-link-flow {
+  fill: none;
+  stroke: #3b82f6;
+  stroke-width: 1.5px;
+  stroke-dasharray: 6, 8;
+  animation: topoFlow 1.5s linear infinite;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.topo-link-flow.danger {
+  stroke: #ef4444;
+}
+
+@keyframes topoFlow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.topo-link-hover {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12px;
+  cursor: pointer;
+}
+
+.topo-link-label-rect {
+  fill: #ffffff;
+  stroke: #e2e8f0;
+  stroke-width: 1px;
+  rx: 4px;
+  ry: 4px;
+}
+
+.topo-link-label-text {
+  font-size: 0.65rem;
+  font-weight: 500;
+  fill: #475569;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* Pulsing warning/danger nodes */
+@keyframes topoPulse {
+  0% {
+    r: 16px;
+    opacity: 1;
+  }
+  100% {
+    r: 30px;
+    opacity: 0;
+  }
+}
+
+.topo-pulse-circle {
+  fill: none;
+  pointer-events: none;
+}
+.topo-node.warning .topo-pulse-circle {
+  stroke: #facc15;
+  stroke-width: 2px;
+  animation: topoPulse 2s infinite ease-out;
+}
+.topo-node.danger .topo-pulse-circle {
+  stroke: #ef4444;
+  stroke-width: 2px;
+  animation: topoPulse 1.5s infinite ease-out;
+}
+
+/* Detail overlay for topology panel */
+.detail-meta-group {
+  margin-bottom: 1rem;
+  background: var(--bg-secondary);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.detail-meta-title {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+.detail-meta-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}

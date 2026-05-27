@@ -7,9 +7,10 @@ export default defineConfig(() => {
             host: '0.0.0.0',
             port: 5177,
             strictPort: true,
+	    allowedHosts: [ "pta-dev.jennifersoft.com" ],
             proxy: {
                 '/api': {
-                    target: 'https://13.158.36.15:8443/',
+                    target: 'https://dev.jennifersoft.com/',
                     changeOrigin: true,
                     secure: false,
                     onProxyRes: (proxyRes) => {
@@ -32,7 +33,9 @@ export default defineConfig(() => {
                     pta: 'pta/index.html',
                     help: 'pta/help.html',
                     capacity: 'capacity/index.html',
-                    tuning: 'tuning/index.html'
+                    tuning: 'tuning/index.html',
+                    anomaly: 'anomaly/index.html',
+                    report: 'report/index.html'
                 },
                 output: {
                     entryFileNames: 'pta/asserts/[name]-[hash].js',

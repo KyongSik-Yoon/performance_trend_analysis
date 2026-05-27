@@ -155,7 +155,54 @@ const DICT = {
   'tuning.beforeBottleneckHeader': { ja: '改善前のボトルネック診断 (Before Analysis)', ko: '개선 전 Bottleneck 진단 (Before Analysis)', en: 'Before-Tuning Bottleneck Diagnosis' },
   'tuning.verdictHeader': { ja: '改善効果検証リポート (Tuning Verdict)', ko: '개선 효과 검증 리포트 (Tuning Verdict)', en: 'Tuning Effect Verdict Report' },
   'tuning.defaultDiagnosisText': { ja: 'データ読み込み後に診断が実行されます。', ko: '데이터를 읽어온 후 진단 리포트가 생성됩니다.', en: 'Diagnosis will be generated after data loads.' },
-  'tuning.defaultVerdictText': { ja: '改善前と改善後のデータを比較して、パフォーマンスの検証結果を表示します。', ko: '개선 전후의 성능 지표를 종합 분석하여 성과 검증 결과를 보여줍니다.', en: 'Performance verdict will be displayed after comparing before and after datasets.' },
+  'tuning.defaultVerdictText': { ja: '改善前と改善後のデータを比較して、パフォーマンス의 검증 결과를 표시합니다.', ko: '개선 전후의 성능 지표를 종합 분석하여 성과 검증 결과를 보여줍니다.', en: 'Performance verdict will be displayed after comparing before and after datasets.' },
+
+  // --- Landing page extensions ---
+  'landing.anomalyTitle': { ja: '異常検出 & アラート分析', ko: '이상 징후 탐지 & Alert 분석', en: 'Anomaly Detection & Alert Analysis' },
+  'landing.anomalyDesc': {
+    ja: '統計的モデルを用いて過去1年間の異常数値を自動検出し、根本原因を診断します。',
+    ko: '통계적 모델을 통해 최근 성능 데이터의 이상 징후를 자동 감지하고 원인을 진단합니다.',
+    en: 'Automatically detects performance anomalies in historical datasets using statistical models and diagnoses root causes.'
+  },
+  'landing.anomalyBtn': { ja: '실험 시작하기', ko: '실험 시작하기', en: 'Start Experiment' },
+  'landing.reportTitle': { ja: '経営向け総合性能レポート', ko: '경영진 보고용 종합 성능 리포트', en: 'Executive Performance Report' },
+  'landing.reportDesc': {
+    ja: '選択期間の性能データと異常検出を基に、経営向けの総合分析レポート及びPDF/画像出力機能を提供します。',
+    ko: '선택한 기간의 성능 데이터와 이상 징후 분석 결과를 바탕으로, 경영진 보고를 위한 종합 보고서 및 PDF/이미지 출력 기능을 제공합니다.',
+    en: 'Generates comprehensive analysis reports for executives based on metrics and anomalies, with PDF/image exports.'
+  },
+  'landing.reportBtn': { ja: 'レポート作成', ko: '리포트 생성하기', en: 'Create Report' },
+
+  // --- Anomaly Detection page ---
+  'anomaly.pageTitle': { ja: '異常検出 & アラート分析', ko: '이상 징후 탐지 & Alert 분석', en: 'Anomaly Detection & Alert Analysis' },
+  'anomaly.sensitivity': { ja: '検出感度 (Sensitivity)', ko: '탐지 감도 (Sensitivity)', en: 'Detection Sensitivity' },
+  'anomaly.totalDetected': { ja: '検出された異常件수', ko: '감지된 이상 건수', en: 'Total Anomalies Detected' },
+  'anomaly.mostAffected': { ja: '最多発生曜日/時間', ko: '최다 발생 요일/시간', en: 'Most Affected Day/Hour' },
+  'anomaly.highErrorCount': { ja: '高エラー率検出', ko: '고에러율 감지 횟수', en: 'High Error Rate Incidents' },
+  'anomaly.peakVsAvg': { ja: '最大ピーク値 / 平均', ko: '최대 피크값 / 평균', en: 'Peak vs Average Value' },
+  'anomaly.tableTitle': { ja: '異常検出イベント履歴', ko: '이상 징후 감지 이벤트 이력', en: 'Anomaly Event Log' },
+  'anomaly.thDeviation': { ja: '偏差 (Deviation)', ko: '편차 (Deviation)', en: 'Deviation' },
+  'anomaly.thDiagnosis': { ja: '根本原因の推定診断 (Root Cause Diagnosis)', ko: '원인 진단 가이드 (Root Cause Diagnosis)', en: 'Root Cause Diagnosis' },
+  'anomaly.defaultDescription': { ja: 'データを読み込み中か、十分なデータがありません。', ko: '데이터를 읽어오는 중이거나 데이터가 부족합니다.', en: 'Loading data or insufficient data available.' },
+
+  // --- Executive Performance Report page ---
+  'report.pageTitle': { ja: '経営向け総合性能レポート', ko: '경영진 보고용 종합 성능 리포트', en: 'Executive Performance Report' },
+  'report.exportPdf': { ja: 'PDFで印刷/保存', ko: 'PDF로 출력 (인쇄)', en: 'Print/Save as PDF' },
+  'report.exportImg': { ja: '画像で保存', ko: '이미지로 저장 (PNG)', en: 'Save as Image (PNG)' },
+  'report.summaryHeader': { ja: '総合性能評価 (Executive Summary)', ko: '종합 성능 평가 (Executive Summary)', en: 'Executive Performance Summary' },
+  'report.gradeLabel': { ja: '性能評価等級', ko: '성능 평가 등급', en: 'Performance Grade' },
+  'report.opinionHeader': { ja: '総合分析所見 (Analysis Opinion)', ko: '종합 분석 소견 (Analysis Opinion)', en: 'Analysis Opinion & Guidance' },
+  'report.metricsGridTitle': { ja: '主要性能指標サマリー', ko: '주요 성능 지표 요약', en: 'Key Performance Summary' },
+  'report.totalHits': { ja: '総ヒット数 (Total Hits)', ko: '총 호출 수 (Total Hits)', en: 'Total Hits' },
+  'report.avgTps': { ja: '平均 TPS (Avg TPS)', ko: '평균 TPS (Avg TPS)', en: 'Avg TPS' },
+  'report.responseTime': { ja: '応答時間 (Avg / Max)', ko: '응답시간 (평균 / 최대)', en: 'Response Time (Avg/Max)' },
+  'report.errorRate': { ja: 'エラー率 (Avg / Max)', ko: '에러율 (평균 / 최대)', en: 'Error Rate (Avg/Max)' },
+  'report.cpuUsage': { ja: 'システムCPU (Avg / Max)', ko: '시스템 CPU (평균 / 최대)', en: 'System CPU (Avg/Max)' },
+  'report.heapUsage': { ja: 'ヒープ使用率 (Avg / Max)', ko: '힙 메모리 사용률 (평균 / 최대)', en: 'Heap Usage (Avg/Max)' },
+  'report.trendChartTitle': { ja: '主要性能指標推移 (Time-series Trend)', ko: '주요 성능 지표 추이 (시계열 트렌드)', en: 'Key Metrics Trend (Time-series)' },
+  'report.anomalyTitle': { ja: '異常検出検出履歴概要', ko: '이상 징후 감지 이력 요약', en: 'Anomaly Incidents Summary' },
+  'report.noAnomalyText': { ja: '分析期間中、特異な性能異常は検出されませんでした。', ko: '분석 기간 내에 특이한 성능 이상 징후가 감지되지 않았습니다.', en: 'No significant performance anomalies were detected during the analysis period.' },
+  'report.generating': { ja: 'レポートを分析及び生成中...', ko: '성능 데이터를 분석하여 리포트를 생성하는 중...', en: 'Analyzing performance metrics and generating report...' },
 
   // --- Help page ---
   'help.title': {

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="../pta/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../pta/config.js"></script>
+  <title data-i18n="anomaly.pageTitle">이상 징후 탐지 & Alert 분석</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css"
+    rel="stylesheet" crossorigin />
+  <!-- Flatpickr (Date Picker) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin></script>
+
+  <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <main class="main-content">
+      <!-- Loading Overlay -->
+      <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader-content">
+          <div class="premium-spinner"></div>
+          <p class="loading-text" data-i18n="loading">데이터 로딩 중...</p>
+        </div>
+      </div>
+
+      <!-- Navigation & Header -->
+      <div class="back-btn-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="../" class="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span data-i18n="backToLab">실험 공간으로 돌아가기</span>
+        </a>
+        <select id="langSelect" class="form-select lang-switcher" aria-label="Language">
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <!-- Filters Section -->
+      <section class="filters-card">
+        <div class="filter-group domain-filter-group">
+          <label data-i18n="filter.domain">도메인</label>
+          <div id="hierarchicalDomainSelector" class="hierarchical-selector">
+            <div class="breadcrumb-container" id="breadcrumbContainer">
+              <div class="breadcrumb-item loading" data-i18n="loading">데이터 로딩 중...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group target-type-group">
+          <label data-i18n="filter.target">대상</label>
+          <div class="toggle-group">
+            <input type="radio" id="typeInstance" name="targetType" value="instance" checked>
+            <label for="typeInstance" data-i18n="target.instance">인스턴스</label>
+            <input type="radio" id="typeBusiness" name="targetType" value="business">
+            <label for="typeBusiness" data-i18n="target.business">비지니스</label>
+          </div>
+        </div>
+
+        <div class="filter-group instance-filter-group" id="instanceFilterArea">
+          <select id="instanceSelect" class="form-select">
+            <option value="" data-i18n="select.allInstances">인스턴스 전체</option>
+          </select>
+        </div>
+
+        <div class="filter-group business-filter-group hidden" id="businessFilterArea">
+          <select id="businessSelect" class="form-select">
+            <option value="" data-i18n="select.allBusinesses">비지니스 전체</option>
+          </select>
+        </div>
+
+        <!-- Sensitivity & Period Filters -->
+        <div class="filter-group">
+          <label data-i18n="anomaly.sensitivity">탐지 감도 (Sensitivity)</label>
+          <div class="sensitivity-control">
+            <input type="range" id="sensitivitySlider" min="1.0" max="4.0" step="0.1" value="2.0">
+            <span id="sensitivityValue" class="sensitivity-value">2.0</span>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label data-i18n="summary.period">기간</label>
+          <input type="text" id="dateRangePicker" class="form-select" style="width: 210px;" placeholder="Select Date Range">
+        </div>
+      </section>
+
+      <!-- Dashboard Grid -->
+      <section class="charts-grid">
+        <div class="chart-card single-chart-card">
+          <div class="chart-header">
+            <div class="metrics-toggle" id="metricsToggle">
+              <button class="metric-btn active" data-metric="service_time" data-i18n="metric.service_time">응답시간</button>
+              <button class="metric-btn" data-metric="service_rate" data-i18n="metric.service_rate">TPS</button>
+              <button class="metric-btn" data-metric="err_rate" data-i18n="metric.err_rate">에러율</button>
+              <button class="metric-btn" data-metric="sys_cpu" id="btnSysCpu" data-i18n="metric.sys_cpu">시스템 CPU</button>
+              <button class="metric-btn" data-metric="heap_usage" id="btnHeapUsage" data-i18n="metric.heap_usage">힙 메모리 사용률</button>
+            </div>
+          </div>
+          <div class="chart-container" style="height: 380px;">
+            <canvas id="anomalyChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summary Info Cards -->
+      <section class="summary-cards" style="margin-top: 1rem; margin-bottom: 1rem;">
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: var(--danger-color);">🚨</span>
+            <h3 data-i18n="anomaly.totalDetected">감지된 이상 건수</h3>
+          </div>
+          <div class="summary-value" id="totalDetectedValue">0</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #3b82f6;">📅</span>
+            <h3 data-i18n="anomaly.mostAffected">최다 발생 요일/시간</h3>
+          </div>
+          <div class="summary-value" id="mostAffectedValue">-</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #ef4444;">❌</span>
+            <h3 data-i18n="anomaly.highErrorCount">고에러율 감지 횟수</h3>
+          </div>
+          <div class="summary-value" id="highErrorCountValue">0</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-header">
+            <span class="summary-icon" style="color: #22c55e;">📈</span>
+            <h3 data-i18n="anomaly.peakVsAvg">최대 피크값 / 평균</h3>
+          </div>
+          <div class="summary-value" id="peakVsAvgValue">0 / 0</div>
+        </div>
+      </section>
+
+      <!-- Anomaly Event List Section -->
+      <section class="detail-section" style="margin-top: 1rem;">
+        <div class="detail-card">
+          <div class="detail-header" style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <h2 data-i18n="anomaly.tableTitle" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">이상 징후 감지 이벤트 이력</h2>
+          </div>
+          <div class="detail-table-wrapper" style="max-height: 400px; overflow-y: auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;" data-i18n="th.no">No.</th>
+                  <th style="width: 140px;" data-i18n="th.date">날짜</th>
+                  <th style="width: 100px;" data-i18n="th.time">시간</th>
+                  <th style="width: 130px;" data-i18n="th.metricValue">메트릭 값</th>
+                  <th style="width: 120px;" data-i18n="stats.avg">평균</th>
+                  <th style="width: 120px;" data-i18n="anomaly.thDeviation">편차 (Deviation)</th>
+                  <th data-i18n="anomaly.thDiagnosis">원인 진단 가이드 (Root Cause Diagnosis)</th>
+                </tr>
+              </thead>
+              <tbody id="anomalyEventTableBody">
+                <tr>
+                  <td colspan="7" class="no-data" data-i18n="anomaly.defaultDescription" style="text-align: center; padding: 2rem;">데이터를 읽어오는 중이거나 데이터가 부족합니다.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide-in Details Panel -->
+      <aside id="detailSlidePanel" class="detail-slide-panel">
+        <div class="panel-header">
+          <h2 data-i18n="layer.detailList">상세 데이터 리스트</h2>
+          <button id="closePanelBtn" class="close-btn" data-i18n-title="close" title="閉じる">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="panel-body">
+          <div class="detail-meta-group">
+            <div class="detail-meta-title" data-i18n="th.date">날짜</div>
+            <div class="detail-meta-value" id="detailDate">-</div>
+          </div>
+          <div class="detail-meta-group">
+            <div class="detail-meta-title" data-i18n="th.time">시간</div>
+            <div class="detail-meta-value" id="detailTime">-</div>
+          </div>
+          <div class="detail-meta-group">
+            <div class="detail-meta-title" data-i18n="th.metricValue">메트릭 값</div>
+            <div class="detail-meta-value" id="detailMetricVal" style="color: var(--danger-color);">-</div>
+          </div>
+          <div class="detail-meta-group">
+            <div class="detail-meta-title" data-i18n="anomaly.thDiagnosis">원인 진단 가이드</div>
+            <div class="detail-meta-value" id="detailDiagnosis" style="font-weight: 500;">-</div>
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem;" data-i18n="layer.detailList">상세 지표 수치</h3>
+            <div id="detailMetricsValues">
+              <!-- Inline bars of related metrics -->
+            </div>
+          </div>
+        </div>
+      </aside>
+      <div id="panelBackdrop" class="panel-backdrop hidden"></div>
+    </main>
+  </div>
+
+  <script type="module" src="../src/anomaly.js"></script>
+</body>
+
+</html>
