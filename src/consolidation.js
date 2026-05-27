@@ -521,13 +521,30 @@ function loadData() {
       ['chartBeforeConsolidation', 'chartAfterConsolidation'].forEach(id => {
         const canvas = document.getElementById(id);
         if (canvas) {
-          const ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.font = '14px sans-serif';
-          ctx.fillStyle = '#64748b';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(t('heatmap.noData'), canvas.width / 2, canvas.height / 2);
+          canvas.style.display = 'none';
+          const container = canvas.parentNode;
+          container.style.position = 'relative';
+          
+          let overlay = container.querySelector('.chart-no-data-overlay');
+          if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'chart-no-data-overlay';
+            overlay.style.position = 'absolute';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.color = '#64748b';
+            overlay.style.fontSize = '0.95rem';
+            overlay.style.fontWeight = '500';
+            overlay.style.pointerEvents = 'none';
+            container.appendChild(overlay);
+          }
+          overlay.textContent = t('heatmap.noData');
+          overlay.style.display = 'flex';
         }
       });
 
@@ -589,7 +606,14 @@ function loadData() {
 }
 
 function renderBeforeChart(labels, datasets) {
-  const ctx = document.getElementById('chartBeforeConsolidation').getContext('2d');
+  const canvas = document.getElementById('chartBeforeConsolidation');
+  if (canvas) {
+    canvas.style.display = 'block';
+    const container = canvas.parentNode;
+    const overlay = container.querySelector('.chart-no-data-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+  const ctx = canvas.getContext('2d');
   if (chartBeforeInstance) chartBeforeInstance.destroy();
 
   chartBeforeInstance = new Chart(ctx, {
@@ -615,7 +639,14 @@ function renderBeforeChart(labels, datasets) {
 }
 
 function renderAfterChart(labels, combinedData, peakCpu) {
-  const ctx = document.getElementById('chartAfterConsolidation').getContext('2d');
+  const canvas = document.getElementById('chartAfterConsolidation');
+  if (canvas) {
+    canvas.style.display = 'block';
+    const container = canvas.parentNode;
+    const overlay = container.querySelector('.chart-no-data-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+  const ctx = canvas.getContext('2d');
   if (chartAfterInstance) chartAfterInstance.destroy();
 
   // 피크 부하 상태에 따른 결합 추세선 색상 변경 (안전: 네이비, 경고: 황색, 위험: 적색)
