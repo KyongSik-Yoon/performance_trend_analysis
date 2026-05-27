@@ -99,6 +99,31 @@ async function fetchMetricData(domainId, targetId, targetType, startTime, endTim
   return data.result || [];
 }
 
+// 도메인 트리 구축
+function buildDomainTree(flatDomains) {
+  const tree = [];
+  flatDomains.forEach(domain => {
+    let currentLevel = tree;
+    const hierarchy = domain.groupHierarchy || [t('domain.uncategorized')];
+
+    hierarchy.forEach((groupName) => {
+      let group = currentLevel.find(item => item.name === groupName && item.type === 'group');
+      if (!group) {
+        group = { name: groupName, type: 'group', children: [] };
+        currentLevel.push(group);
+      }
+      currentLevel = group.children;
+    });
+
+    currentLevel.push({
+      id: domain.domainId,
+      name: domain.name,
+      type: 'domain'
+    });
+  });
+  return tree;
+}
+
 // 도메인 트리 조회 및 초기 선택
 async function loadDomainTree() {
   const url = `${DOMAIN_API_BASE}?token=${TOKEN}`;
@@ -106,7 +131,8 @@ async function loadDomainTree() {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Domain API load failed');
     const data = await response.json();
-    domainTree = data.result || [];
+    const flatDomains = data.result || [];
+    domainTree = buildDomainTree(flatDomains);
 
     // 최초 도메인 강제 선택
     const firstDomain = findFirstDomain(domainTree);
