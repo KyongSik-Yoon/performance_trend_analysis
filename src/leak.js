@@ -450,7 +450,15 @@ async function loadData() {
     daysToOomValue.textContent = '-';
     restartStatusValue.innerHTML = `<span class="drift-status-badge stable">${t('heatmap.noDataShort')}</span>`;
     
-    recommendationList.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">${t('heatmap.noData')}</div>`;
+    let recNoDataMsg = '';
+    if (getLang() === 'ko') {
+      recNoDataMsg = '힙 메모리 데이터가 충분하지 않아 분석 권장 사항을 생성할 수 없습니다.';
+    } else if (getLang() === 'ja') {
+      recNoDataMsg = 'ヒープメモリーデータが不足しているため、推奨事項を生成できません。';
+    } else {
+      recNoDataMsg = 'No heap telemetry available to generate analysis recommendations.';
+    }
+    recommendationList.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">${recNoDataMsg}</div>`;
 
     if (heapChartInstance) {
       heapChartInstance.destroy();

@@ -464,7 +464,58 @@ async function loadData() {
       }
     }
 
-    driftCauseList.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">${noDataMsg}</div>`;
+    let causeNoDataMsg = '';
+    if (getLang() === 'ko') {
+      if (!domainId) {
+        causeNoDataMsg = '데이터가 없습니다.';
+      } else {
+        const hasA = (realDataA && realDataA.map(item => item.value).filter(val => val > 0).length > 0);
+        const hasB = (realDataB && realDataB.map(item => item.value).filter(val => val > 0).length > 0);
+        if (!hasA && !hasB) {
+          causeNoDataMsg = '분석 기간에 데이터가 수집되지 않아 성능 드리프트 원인 분석을 수행할 수 없습니다.';
+        } else if (!hasA) {
+          causeNoDataMsg = '기준 기간(Period A)에 데이터가 없어 원인 분석을 수행할 수 없습니다.';
+        } else if (!hasB) {
+          causeNoDataMsg = '비교 기간(Period B)에 데이터가 없어 원인 분석을 수행할 수 없습니다.';
+        } else {
+          causeNoDataMsg = '데이터가 부족하여 원인 분석을 수행할 수 없습니다.';
+        }
+      }
+    } else if (getLang() === 'ja') {
+      if (!domainId) {
+        causeNoDataMsg = 'データがありません。';
+      } else {
+        const hasA = (realDataA && realDataA.map(item => item.value).filter(val => val > 0).length > 0);
+        const hasB = (realDataB && realDataB.map(item => item.value).filter(val => val > 0).length > 0);
+        if (!hasA && !hasB) {
+          causeNoDataMsg = '分析期間にデータが収集されていないため、性能ドリフトの原因分析を実行できません。';
+        } else if (!hasA) {
+          causeNoDataMsg = '基準期間(Period A)にデータがないため、原因分析を実行できません。';
+        } else if (!hasB) {
+          causeNoDataMsg = '比較期間(Period B)にデータがないため、原因分析を実行できません。';
+        } else {
+          causeNoDataMsg = 'データが不足しているため、原因分析を実行できません。';
+        }
+      }
+    } else {
+      if (!domainId) {
+        causeNoDataMsg = 'No data available.';
+      } else {
+        const hasA = (realDataA && realDataA.map(item => item.value).filter(val => val > 0).length > 0);
+        const hasB = (realDataB && realDataB.map(item => item.value).filter(val => val > 0).length > 0);
+        if (!hasA && !hasB) {
+          causeNoDataMsg = 'No performance drift root causes could be analyzed due to missing data in both periods.';
+        } else if (!hasA) {
+          causeNoDataMsg = 'Cannot perform cause analysis due to missing data in baseline Period A.';
+        } else if (!hasB) {
+          causeNoDataMsg = 'Cannot perform cause analysis due to missing data in comparison Period B.';
+        } else {
+          causeNoDataMsg = 'Cannot perform cause analysis due to insufficient data.';
+        }
+      }
+    }
+
+    driftCauseList.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">${causeNoDataMsg}</div>`;
 
     if (driftChartInstance) {
       driftChartInstance.destroy();
