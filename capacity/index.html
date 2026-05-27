@@ -226,6 +226,13 @@
       color: var(--accent-color);
     }
 
+    .lang-switcher {
+      min-width: 100px;
+      height: 32px;
+      padding: 0 8px;
+      cursor: pointer;
+    }
+
     @media (max-width: 1024px) {
       .capacity-container {
         grid-template-columns: 1fr;
@@ -253,7 +260,7 @@
           </svg>
           <span data-i18n="backToLab">実験スペースに戻る</span>
         </a>
-        <select id="langSelect" class="lang-switcher" aria-label="Language">
+        <select id="langSelect" class="form-select lang-switcher" aria-label="Language">
             <option value="ja">日本語</option>
             <option value="ko">한국어</option>
             <option value="en">English</option>
