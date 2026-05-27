@@ -455,7 +455,13 @@ function renderHierarchicalSelector() {
 
     breadcrumb.addEventListener('click', (e) => {
       e.stopPropagation();
-      document.querySelectorAll('.selector-popover').forEach(p => p.classList.remove('active'));
+      
+      const oldPopover = document.getElementById('hierarchicalSelectorPopup');
+      if (oldPopover) {
+        const wasOpenForThis = oldPopover.dataset.breadcrumbIndex === String(index);
+        oldPopover.remove();
+        if (wasOpenForThis) return;
+      }
 
       let levelItems = domainTree;
       const basePath = currentSelectedPath.slice(0, index);
@@ -485,9 +491,17 @@ function renderHierarchicalSelector() {
             renderHierarchicalSelector();
           }
         }
-      });
+      }, 0);
 
-      breadcrumb.appendChild(popover);
+      popover.id = 'hierarchicalSelectorPopup';
+      popover.dataset.breadcrumbIndex = String(index);
+      popover.style.position = 'absolute';
+      
+      const rect = breadcrumb.getBoundingClientRect();
+      popover.style.top = `${rect.bottom + window.scrollY + 6}px`;
+      popover.style.left = `${rect.left + window.scrollX}px`;
+
+      document.body.appendChild(popover);
       setTimeout(() => popover.classList.add('active'), 0);
     });
 
@@ -520,7 +534,8 @@ function createPopover(items, onSelect, level = 0, currentLevelPath = []) {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       onSelect(itemPath);
-      document.querySelectorAll('.selector-popover').forEach(p => p.classList.remove('active'));
+      const rootPopover = document.getElementById('hierarchicalSelectorPopup');
+      if (rootPopover) rootPopover.remove();
     });
 
     if (item.type === 'group' && item.children && item.children.length > 0) {
@@ -546,6 +561,9 @@ function createPopover(items, onSelect, level = 0, currentLevelPath = []) {
     const closeHandler = (e) => {
       if (!popover.contains(e.target) && !e.target.closest('.breadcrumb-item')) {
         popover.classList.remove('active');
+        setTimeout(() => {
+          if (popover.parentNode) popover.remove();
+        }, 200);
         document.removeEventListener('click', closeHandler);
       }
     };
