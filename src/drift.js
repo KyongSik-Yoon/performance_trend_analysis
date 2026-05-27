@@ -473,13 +473,30 @@ async function loadData() {
 
     const canvas = document.getElementById('driftChart');
     if (canvas) {
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = '14px sans-serif';
-      ctx.fillStyle = '#64748b';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(noDataMsg, canvas.width / 2, canvas.height / 2);
+      canvas.style.display = 'none';
+      const container = canvas.parentNode;
+      container.style.position = 'relative';
+      
+      let overlay = container.querySelector('.chart-no-data-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'chart-no-data-overlay';
+        overlay.style.position = 'absolute';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.color = '#64748b';
+        overlay.style.fontSize = '0.95rem';
+        overlay.style.fontWeight = '500';
+        overlay.style.pointerEvents = 'none';
+        container.appendChild(overlay);
+      }
+      overlay.textContent = noDataMsg;
+      overlay.style.display = 'flex';
     }
 
     if (simulatedWarningBanner) {
@@ -542,6 +559,15 @@ async function loadData() {
   renderDriftCauses(avgDiffVal, cpuValA, cpuValB, heapValA, heapValB, errValA, errValB);
 
   // 5. 차트 그리기
+  const canvas = document.getElementById('driftChart');
+  if (canvas) {
+    canvas.style.display = 'block';
+    const container = canvas.parentNode;
+    const overlay = container.querySelector('.chart-no-data-overlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
+  }
   renderDriftChart(xRange, distA, distB);
 
   if (simulatedWarningBanner) {
