@@ -341,6 +341,7 @@ body {
   color: var(--text-secondary);
   padding: 0 8px;
   border-right: 1px solid var(--border-color);
+  white-space: nowrap; /* 이동평균 텍스트 찌그러짐 및 줄바꿈 방지 */
 }
 
 .toggle-btn {
@@ -602,6 +603,99 @@ body {
 @media (max-width: 768px) {
   .charts-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* 모바일 필터 레이아웃 최적화 */
+  .filters-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-left: 0;
+    width: 100%;
+  }
+
+  .filter-group label {
+    font-weight: 600;
+  }
+
+  .form-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hierarchical-selector {
+    width: 100%;
+  }
+
+  .breadcrumb-container {
+    width: 100%;
+  }
+
+  .filter-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+    padding-right: 0;
+  }
+
+  /* 차트 헤더 모바일 레이아웃 최적화 */
+  .chart-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .metrics-toggle {
+    overflow-x: auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .metric-btn {
+    flex-shrink: 0;
+  }
+
+  .header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .ma-toggle-group,
+  .chart-type-toggle {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* 480px 이하 모바일 기기 레이아웃 대응 */
+@media (max-width: 480px) {
+  .summary-cards {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .metrics-toggle {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .metric-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
   }
 }
 
