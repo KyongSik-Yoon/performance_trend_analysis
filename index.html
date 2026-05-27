@@ -4,20 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JENNIFER Extension Labo</title>
+    <title>JENNIFER APM Extension Labo</title>
+    <meta name="description" content="JENNIFER APM Extension Labo - OpenAPI를 이용한 실험적 성능 분석 도구 프로토타입 체험 공간">
     <!-- Pretendard JP Font -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css"
         rel="stylesheet" crossorigin />
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-color: #22c55e;
-            --accent-gradient: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
-            --hover-gradient: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --primary-color: #1e3a8a; /* Jennifer APM Signature Navy */
+            --primary-hover: #1d4ed8; /* Modern blue hover */
+            --accent-light: #eff6ff;
+            --border-radius: 4px;
+
+            /* Gray scale */
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-900: #0f172a;
         }
 
         * {
@@ -32,235 +44,241 @@
             color: var(--text-primary);
             min-height: 100vh;
             padding: 0;
-            line-height: 1.7;
-            background-image:
-                radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
-            background-attachment: fixed;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 0 1.5rem 4rem;
         }
 
-        /* Hero Section */
-        .hero {
-            text-align: left;
-            padding: 1rem 0 0.5rem;
-            position: relative;
+        /* Top Navbar */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .logo-badge {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            letter-spacing: 0.05em;
+        }
+
+        .logo-text {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: -0.01em;
+        }
+
+        .logo-text span {
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-left: 0.25rem;
         }
 
         /* Language Switcher */
         .lang-switcher {
-            position: absolute;
-            top: 1rem;
-            right: 0;
-            padding: 0.4rem 0.7rem;
+            padding: 0.4rem 0.8rem;
             font-size: 0.85rem;
             font-family: inherit;
             color: var(--text-primary);
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
+            background-color: #ffffff;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
             cursor: pointer;
             outline: none;
-            backdrop-filter: blur(10px);
+            transition: all 0.15s ease;
+        }
+
+        .lang-switcher:hover {
+            border-color: var(--primary-color);
         }
 
         .lang-switcher option {
-            background-color: #0b0f19;
+            background-color: #ffffff;
             color: var(--text-primary);
         }
 
+        /* Hero Header */
+        .hero {
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
         .sub-catch {
-            font-size: 0.9rem;
-            color: var(--accent-color);
+            font-size: 0.95rem;
+            color: var(--primary-color);
             font-weight: 600;
             margin-bottom: 0.5rem;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.02em;
             display: block;
         }
 
         .main-catch {
-            font-size: 4rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.02em;
-            line-height: 1.3;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            line-height: 1.25;
+            margin-bottom: 1.25rem;
         }
 
-        /* Intro Section - Reduced size */
+        /* Intro Box - Clean alert box design with a left border accent */
         .intro-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 0.5rem;
-            border-radius: 24px;
-            margin-bottom: 2.0rem;
-            backdrop-filter: blur(10px);
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 3.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .intro-text {
             font-size: 0.9rem;
             color: var(--text-secondary);
-            max-width: 950px;
-            margin: 0 auto;
-            text-align: left;
+            line-height: 1.7;
         }
 
         .intro-text p {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .intro-text p:last-child {
             margin-bottom: 0;
         }
 
-        /* Features Grid - Compact version */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 5rem;
-        }
-
-        .feature-item {
-            text-align: center;
-            padding: 1rem;
-        }
-
-        .feature-icon {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .feature-item h3 {
-            font-size: 1.05rem;
-            margin-bottom: 0.75rem;
+        .intro-text strong {
             color: var(--text-primary);
-        }
-
-        .feature-item p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
+            font-weight: 700;
         }
 
         /* Section Title */
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 2rem;
-            text-align: center;
             position: relative;
-            padding-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            display: inline-block;
         }
 
         .section-title::after {
             content: '';
             position: absolute;
             bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 3px;
-            background: var(--accent-gradient);
-            border-radius: 2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
         }
 
         /* Card Grid */
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 2rem;
-            margin-bottom: 6rem;
+            gap: 1.5rem;
+            margin-bottom: 4rem;
         }
 
         .card {
             background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            position: relative;
-            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1.75rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            backdrop-filter: blur(12px);
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--hover-gradient);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: 0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(34, 197, 94, 0.3);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-        }
-
-        .card:hover::before {
-            opacity: 1;
+            border-color: var(--primary-color);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+            transform: translateY(-2px);
         }
 
         .card-content {
-            position: relative;
-            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card-header-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
         }
 
         .card-icon {
-            font-size: 2.8rem;
-            margin-bottom: 1.25rem;
-            display: block;
+            font-size: 1.25rem;
+            background-color: var(--gray-50);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
 
         .card h2 {
-            font-size: 1.5rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            margin-bottom: 1rem;
             color: var(--text-primary);
+            margin: 0;
+            line-height: 1.3;
         }
 
         .card p {
             color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
-            min-height: 4rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.75rem;
+            line-height: 1.6;
+            flex-grow: 1;
+            min-height: 3.5rem;
         }
 
+        /* Standard Jennifer flat button */
         .btn {
             display: inline-block;
-            padding: 0.8rem 1.8rem;
-            background: var(--accent-gradient);
-            color: white;
+            padding: 0.5rem 1.25rem;
+            background-color: var(--primary-color);
+            color: #ffffff;
             text-decoration: none;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
             text-align: center;
             align-self: flex-start;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+            border: 1px solid var(--primary-color);
+            cursor: pointer;
         }
 
         .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
-            filter: brightness(1.1);
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
         }
 
         .card.disabled {
@@ -268,85 +286,44 @@
             border-style: dashed;
         }
 
-        .tag {
-            display: inline-block;
-            padding: 4px 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
         /* Footer */
         footer {
-            border-top: 1px solid var(--card-border);
-            padding: 3rem 1.5rem;
-            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0;
+            background-color: #ffffff;
+            margin-top: 6rem;
         }
 
         .footer-content {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 1.5rem;
             color: var(--text-secondary);
             font-size: 0.8rem;
             line-height: 1.6;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-
-            .main-catch {
-                font-size: 2.8rem;
-            }
+        .footer-content p strong {
+            color: var(--text-primary);
         }
 
+        /* Responsive Layouts */
         @media (max-width: 768px) {
             .container {
-                padding: 1.5rem 1rem;
+                padding: 0 1rem 3rem;
             }
 
-            .intro-box {
-                padding: 1.25rem;
+            .top-navbar {
+                margin-bottom: 2rem;
             }
 
             .main-catch {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
 
-            /* 모바일 헤더 언어선택기 겹침 방지 */
-            .hero {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-                position: relative;
-            }
-
-            .lang-switcher {
-                position: static;
-                align-self: flex-end;
-                margin-bottom: 1rem;
-            }
-        }
-
-        /* 480px 이하 모바일 레이아웃 대응 */
-        @media (max-width: 480px) {
             .card-grid {
                 grid-template-columns: 1fr;
                 gap: 1.25rem;
-                margin-bottom: 4rem;
-            }
-
-            .main-catch {
-                font-size: 1.5rem;
-            }
-
-            .sub-catch {
-                font-size: 0.8rem;
             }
         }
     </style>
@@ -354,90 +331,84 @@
 
 <body>
     <div class="container">
-        <!-- Hero Section -->
-        <header class="hero">
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+            <div class="logo-area">
+                <span class="logo-badge">LABO</span>
+                <span class="logo-text">JENNIFER <span>Extension Labo</span></span>
+            </div>
             <select id="langSelect" class="lang-switcher" aria-label="Language">
                 <option value="ja">日本語</option>
                 <option value="ko">한국어</option>
                 <option value="en">English</option>
             </select>
-            <span class="sub-catch" data-i18n="landing.subCatch">JENNIFERのデータを、もっと自由に使いこなす。</span>
+        </header>
+
+        <!-- Hero Header -->
+        <header class="hero">
+            <span class="sub-catch" data-i18n="landing.subCatch">JENNIFER의 데이터를, 더 자유롭게 활용하다.</span>
             <h1 class="main-catch">JENNIFER Extension Labo</h1>
         </header>
 
-        <!-- Intro Section (Compact) -->
+        <!-- Intro Section (Compact Alert-style) -->
         <section class="intro-box">
             <div class="intro-text">
                 <p data-i18n-html="landing.intro1">
                     <strong>JENNIFER Extension Labo</strong>
-                    は、APMツール「JENNIFER」が収集したパフォーマンスデータをOpenAPIを通じて活用する、プロトタイプ機能・画面を試せる実験スペースです。
+                    는, APM 도구 「JENNIFER」가 수집한 성능 데이터를 OpenAPI를 통해 활용하여, 프로토타입 기능·화면을 체험할 수 있는 실험 공간입니다.
                 </p>
                 <p data-i18n-html="landing.intro2">
-                    JENNIFERが持つ豊富な性能データを、標準機能の枠を超えてどう使えるか ― アイデアを実際の画面として形にし、ユーザーが直接体験・評価できる場を提供します。
-                    ここはユーザーと開発チームが一緒にJENNIFERの未来を作る、共同実験室です。
+                    JENNIFER가 보유한 풍부한 성능 데이터를 표준 기능의 틀을 넘어 어떻게 활용할 수 있을지 ― 아이디어를 실제 화면으로 구현하여, 사용자가 직접 체험하고 평가할 수 있는 장을 제공합니다. 이곳은 사용자와 개발팀이 함께 JENNIFER의 미래를 만들어가는 공동 실험실입니다.
                 </p>
             </div>
         </section>
 
-        <!-- Features Section (Compact) -->
-        <!---
-        <section class="features-grid">
-            <div class="feature-item">
-                <span class="feature-icon">🔌</span>
-                <h3>OpenAPI活用のショーケース</h3>
-                <p>JENNIFERのOpenAPIを使って実装したプロトタイプ画面を公開。データの新しい見せ方・使い方を提案します。</p>
-            </div>
-            <div class="feature-item">
-                <span class="feature-icon">🧪</span>
-                <h3>実験的機能をいち早く体験</h3>
-                <p>正式リリース前の機能・UIをプロトタイプとして先行公開。実際に触れて、使い心地を確かめてください。</p>
-            </div>
-            <div class="feature-item">
-                <span class="feature-icon">💬</span>
-                <h3>フィードバックを機能へ</h3>
-                <p>あなたの声が、次のJENNIFERアップデートに繋がります。改善案や感想をぜひお聞かせください。</p>
-            </div>
-        </section>
-        -->
-
-        <!-- Lab Modules (Main Focus) -->
-        <div class="section-title" data-i18n="landing.sectionTitle">現在進行中の実験</div>
+        <!-- Lab Modules -->
+        <div class="section-title" data-i18n="landing.sectionTitle">현재 진행 중인 실험</div>
         <main class="card-grid">
             <!-- PTA Card -->
             <article class="card">
                 <div class="card-content">
-                    <span class="card-icon">📊</span>
-                    <h2 data-i18n="landing.ptaTitle">性能トレンド分析</h2>
-                    <p data-i18n="landing.ptaDesc">システムの長期的な性能推移を分析し、時間帯別/曜日別のパターンを可視化。最適なキャパシティプランニングを支援します。</p>
-                    <a href="pta/" class="btn" data-i18n="landing.ptaBtn">実験を開始する</a>
+                    <div class="card-header-row">
+                        <span class="card-icon">📊</span>
+                        <h2 data-i18n="landing.ptaTitle">성능 트렌드 분석</h2>
+                    </div>
+                    <p data-i18n="landing.ptaDesc">시스템의 장기적인 성능 추이를 분석하고 시간대별/요일별 패턴을 시각화하여, 최적의 용량 계획을 지원합니다.</p>
+                    <a href="pta/" class="btn" data-i18n="landing.ptaBtn">실험 시작하기</a>
                 </div>
             </article>
 
             <!-- Capacity Card -->
             <article class="card">
                 <div class="card-content">
-                    <span class="card-icon">📈</span>
-                    <h2 data-i18n="landing.capacityTitle">リソース増設予測 & 妥当性分析</h2>
-                    <p data-i18n="landing.capacityDesc">CPU/Memory의 장기 추세를 분석하고 선형 회귀 알고리즘으로 임계치 도달 예상 시점 및 증설 타당성 리포트를 확인합니다.</p>
-                    <a href="capacity/" class="btn" data-i18n="landing.capacityBtn">実験を開始する</a>
+                    <div class="card-header-row">
+                        <span class="card-icon">📈</span>
+                        <h2 data-i18n="landing.capacityTitle">리소스 증설 예측 & 타당성 분석</h2>
+                    </div>
+                    <p data-i18n="landing.capacityDesc">CPU 및 Memory의 장기 추세를 분석하고 선형 회귀 알고리즘으로 임계치 도달 예상 시점 및 증설 타당성 리포트를 확인합니다.</p>
+                    <a href="capacity/" class="btn" data-i18n="landing.capacityBtn">실험 시작하기</a>
                 </div>
             </article>
 
             <!-- Tuning Card -->
             <article class="card">
                 <div class="card-content">
-                    <span class="card-icon">⚡</span>
-                    <h2 data-i18n="landing.tuningTitle">性能改善 前後効果分析</h2>
+                    <div class="card-header-row">
+                        <span class="card-icon">⚡</span>
+                        <h2 data-i18n="landing.tuningTitle">성능 개선 전후 효과 분석</h2>
+                    </div>
                     <p data-i18n="landing.tuningDesc">성능 튜닝 및 소스 배포 전후의 특정 기간을 비교하여, 응답시간 단축율 및 리소스 사용 효율성을 종합 검증합니다.</p>
-                    <a href="tuning/" class="btn" data-i18n="landing.tuningBtn">実験を開始する</a>
+                    <a href="tuning/" class="btn" data-i18n="landing.tuningBtn">실험 시작하기</a>
                 </div>
             </article>
 
             <!-- Anomaly Card -->
             <article class="card">
                 <div class="card-content">
-                    <span class="card-icon">🚨</span>
-                    <h2 data-i18n="landing.anomalyTitle">이상 징후 탐지 & Alert 분석</h2>
+                    <div class="card-header-row">
+                        <span class="card-icon">🚨</span>
+                        <h2 data-i18n="landing.anomalyTitle">이상 징후 탐지 & Alert 분석</h2>
+                    </div>
                     <p data-i18n="landing.anomalyDesc">통계적 모델을 통해 최근 성능 데이터의 이상 징후를 자동 감지하고 원인을 진단합니다.</p>
                     <a href="anomaly/" class="btn" data-i18n="landing.anomalyBtn">실험 시작하기</a>
                 </div>
@@ -446,8 +417,10 @@
             <!-- Report Card -->
             <article class="card">
                 <div class="card-content">
-                    <span class="card-icon">📊</span>
-                    <h2 data-i18n="landing.reportTitle">경영진 보고용 종합 성능 리포트</h2>
+                    <div class="card-header-row">
+                        <span class="card-icon">📋</span>
+                        <h2 data-i18n="landing.reportTitle">경영진 보고용 종합 성능 리포트</h2>
+                    </div>
                     <p data-i18n="landing.reportDesc">선택한 기간의 성능 데이터와 이상 징후 분석 결과를 바탕으로, 경영진 보고를 위한 종합 보고서 및 PDF/이미지 출력 기능을 제공합니다.</p>
                     <a href="report/" class="btn" data-i18n="landing.reportBtn">리포트 생성하기</a>
                 </div>
@@ -459,8 +432,8 @@
     <footer>
         <div class="footer-content">
             <p data-i18n-html="landing.footer1">
-                <strong>JENNIFER Expansion Labo</strong> は、株式会社JenniferSoftが運営するプロトタイプサイトです。<br>
-                ここで公開されるすべての機能はプロトタイプであり、将来的なサービスへの搭載を保証するものではありません。
+                <strong>JENNIFER Expansion Labo</strong>는 주식회사 JenniferSoft가 운영하는 프로토타입 사이트입니다.<br>
+                여기에서 공개되는 모든 기능은 프로토타입이며, 향후 서비스 탑재를 보장하지 않습니다.
             </p>
             <p style="margin-top: 1.5rem; opacity: 0.5;">
                 &copy; 2026 JenniferSoft, Inc. All rights reserved.
