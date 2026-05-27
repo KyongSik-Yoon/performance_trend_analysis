@@ -77,6 +77,7 @@ const DICT = {
   'th.date': { ja: '日付', ko: '날짜', en: 'Date' },
   'th.time': { ja: '時間', ko: '시간', en: 'Time' },
   'th.hits': { ja: 'Hit数', ko: 'Hit 수', en: 'Hits' },
+  'th.metric': { ja: 'メトリクス', ko: '메트릭', en: 'Metric' },
   'th.metricValue': { ja: 'メトリクス値', ko: '메트릭 값', en: 'Metric Value' },
 
   // --- Units ---

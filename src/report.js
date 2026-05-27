@@ -774,7 +774,7 @@ function renderAnomaliesTable(anomalies) {
   if (anomalies.length === 0) {
     reportAnomalyTableBody.innerHTML = `
       <tr>
-        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);" data-i18n="report.noAnomalyText">
+        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);" data-i18n="report.noAnomalyText">
           ${t('report.noAnomalyText')}
         </td>
       </tr>
@@ -794,9 +794,15 @@ function renderAnomaliesTable(anomalies) {
     if (item.metric === 'error_rate') metricUnit = '%';
     else if (item.metric === 'sys_cpu') metricUnit = '%';
 
+    let metricLabel = item.metric;
+    if (item.metric === 'service_time') metricLabel = t('metric.service_time');
+    else if (item.metric === 'error_rate') metricLabel = t('metric.err_rate');
+    else if (item.metric === 'sys_cpu') metricLabel = t('metric.sys_cpu');
+
     tr.innerHTML = `
       <td style="padding: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">${dateStr}</td>
       <td style="padding: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">${timeStr}</td>
+      <td style="padding: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">${metricLabel}</td>
       <td style="padding: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); font-weight: 600; font-size: 0.8rem;">${item.value.toFixed(1)}${metricUnit}</td>
       <td style="padding: 8px; border-bottom: 1px solid var(--border-color); color: #ef4444; font-size: 0.8rem;">+${item.z.toFixed(1)} σ</td>
       <td style="padding: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.8rem;">${item.diagnosis}</td>
