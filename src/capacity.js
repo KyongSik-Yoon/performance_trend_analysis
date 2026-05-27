@@ -558,6 +558,19 @@ function calculateForecast(threshold) {
       badgeText = '観察要請';
       description = `使用量は持続的に増加していますが、しきい値突破まで約 ${Math.floor(daysToLimit / 30)}ヶ月の猶予があります。トレンドを継続的に観察し、急激なトラフィックスパイクに備えてください.`;
     }
+  } else if (exceedRatio > 0) {
+    // 장기 추세는 안정적이나, 최근 30일 이내에 임계치를 초과한 피크가 존재하는 경우
+    status = 'warning';
+    if (lang === 'ko') {
+      badgeText = '피크 발생 (주의)';
+      description = `최근 30일 이내에 ${metricName}이 임계값(${threshold}%)을 초과하는 피크 구간이 발생했습니다. <strong>장기 추세선은 안정적이나, 일시적인 부하 집중 시 성능 저하 리스크가 존재</strong>하므로 모니터링 강화 및 튜닝을 검토하십시오.`;
+    } else if (lang === 'en') {
+      badgeText = 'Peak Warning';
+      description = `A peak exceeding the threshold (${threshold}%) in ${metricName} has occurred within the last 30 days. <strong>While the long-term trend remains stable, temporary overload risks exist</strong>. We recommend closer monitoring or performance tuning.`;
+    } else {
+      badgeText = 'ピーク注意';
+      description = `直近30日以内に${metricName}がしきい値(${threshold}%)を超えるピークが発生しました。<strong>長期的なトレンドは安定していますが、一時的な負荷集中による性能低下リスクが存在</strong>するため、監視強化やチューニングを検討してください。`;
+    }
   } else {
     status = 'success';
     if (lang === 'ko') {
