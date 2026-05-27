@@ -542,6 +542,65 @@ const DICT = {
     en: '<strong>Combine With Period Selection:</strong> Selecting a specific month on the main chart lets you compare and analyze how day-of-week patterns change across seasons and event periods.'
   },
 
+  // --- New experimental pages (Stabilized customer modules) ---
+  // Landing cards
+  'landing.leakTitle': { ja: '100日メモリーリー크検出', ko: '100일 메모리 누수 감지', en: '100-Day Memory Leak Auditor' },
+  'landing.leakDesc': {
+    ja: 'GC直後のヒープ使用量を数ヶ月間追跡し、日単位ではなく週/月単位の超微細リークの傾きを早期に検出し、再起動周期を推奨します。',
+    ko: 'GC 직후 Heap 사용량을 수개월 동안 추적하여 일 단위가 아닌 주/월 단위의 초미세 누수 기울기(Slope)를 조기에 감지하고 재기동 주기를 추천합니다.',
+    en: 'Tracks post-GC heap usage over months to detect weekly/monthly micro-leak slopes early and recommend graceful restart schedules.'
+  },
+  'landing.leakBtn': { ja: '実験を開始する', ko: '실험 시작하기', en: 'Start Experiment' },
+
+  'landing.consolidationTitle': { ja: 'サーバー統合 & 密度最適化', ko: '서버 통폐합 & 밀도 최적화', en: 'Server Consolidation & Density Optimizer' },
+  'landing.consolidationDesc': {
+    ja: '複数インスタンスのリソース使用パターンを分析し、補完関係にあるサーバー群を統合し、リソース競合確率および費用削減額をシミュレーションします。',
+    ko: '여러 인스턴스의 자원 사용 패턴을 수집/분석하여 시간대별 사용률이 상호 보완적인 인스턴스를 도출하고 통합 시 안전성 및 인프라 비용 절감액을 예측합니다.',
+    en: 'Analyzes patterns of multiple instances to simulate resource-sharing server consolidation, predicting resource contention risks and monthly cost savings.'
+  },
+  'landing.consolidationBtn': { ja: '実験を開始する', ko: '실험 시작하기', en: 'Start Experiment' },
+
+  'landing.driftTitle': { ja: '応答時間分布ドリフト分析', ko: '응답시간 분포 드리프트 분석', en: 'Response Time Distribution Drift Analysis' },
+  'landing.driftDesc': {
+    ja: '特定の機能配備やパッチ前後の応答時間分布曲線(確率密度)をマッピングし、応答遅延のドリフト現象を統計的に比較診断します。',
+    ko: '특정 기능 배포나 패치 전후의 응답 시간 분포 곡선(Probability Density Curve)을 매핑하고 밀림 현상(Drift)을 통계적으로 비교 진단합니다.',
+    en: 'Maps response time probability density curves before and after deployments or patches to statistically diagnose micro-delay drift phenomena.'
+  },
+  'landing.driftBtn': { ja: '実験を開始する', ko: '실험 시작하기', en: 'Start Experiment' },
+
+  // Leak subpage
+  'leak.pageTitle': { ja: '100日メモリーリー크検出', ko: '100일 메모리 누수 감지', en: '100-Day Memory Leak Auditor' },
+  'leak.uptime': { ja: '連続起動日数 (Uptime)', ko: '연속 기동 일수 (Uptime)', en: 'Continuous Uptime' },
+  'leak.slope': { ja: 'メモリーリークの傾き (Slope)', ko: '메모리 누수 기울기 (Slope)', en: 'Leak Slope' },
+  'leak.daysToOom': { ja: 'OOM予測日数 (OOM Forecast)', ko: 'OOM 예상 일수 (OOM Forecast)', en: 'Days until OOM' },
+  'leak.restartStatus': { ja: '推奨再起動管理', ko: '권장 재기동 관리', en: 'Recommended Restart Status' },
+  'leak.statusHealthy': { ja: '安全 (Healthy)', ko: '안전 (Healthy)', en: 'Healthy' },
+  'leak.statusWarning': { ja: '注意 (Warning)', ko: '주의 (Warning)', en: 'Warning' },
+  'leak.statusDanger': { ja: '危険 (Critical)', ko: '위험 (Critical)', en: 'Critical' },
+  'leak.chartTitle': { ja: '長期ヒープメモリー(GC直後)推移', ko: '장기 힙 메모리(GC 직후) 추세', en: 'Long-term Post-GC Heap Usage Trend' },
+  'leak.recommendText': { ja: '推奨予防保守アクション', ko: '권장 예방 정비 액션', en: 'Recommended Proactive Maintenance Action' },
+  'leak.explanation': { ja: '※本分析は、日々実行されるGCの直後に回収されずに残留するメモリ가 長期間でどう微増するか、線形回帰(Linear Regression)を用いて残余寿命を算出します。', ko: '※ 본 분석은 일평균 실행되는 GC 직후 회수되지 못하고 잔류하는 메모리가 장기간에 걸쳐 어떻게 미세하게 누적되는지 선형 회귀(Linear Regression) 모델을 적용하여 잔여 수명을 산출합니다.', en: '* This analysis applies a linear regression model to post-GC minimum heap footprint to compute the slope of micro memory leaks and forecast residual JVM lifetime.' },
+
+  // Consolidation subpage
+  'consolidation.pageTitle': { ja: 'サーバー統合 & 密度最適化', ko: '서버 통폐합 & 밀도 최적화', en: 'Server Consolidation & Density Optimizer' },
+  'consolidation.selectServers': { ja: '統合対象インスタンス選択', ko: '통합 대상 인스턴스 선택', en: 'Select Instances for Consolidation' },
+  'consolidation.savings': { ja: '年間インフラ費用節減額', ko: '연간 인프라 비용 절감액', en: 'Estimated Annual Savings' },
+  'consolidation.contentionRisk': { ja: '統合後のリソース競合確率', ko: '통합 후 리소스 경합 확률', en: 'Resource Contention Risk' },
+  'consolidation.peakCpu': { ja: '統合後予測CPUピーク値', ko: '통합 후 예측 CPU 피크값', en: 'Predicted Combined Peak CPU' },
+  'consolidation.chartBefore': { ja: '統合前の個別インフラ負荷 (24時間)', ko: '통합 전 개별 인프라 부하 (24시간)', en: 'Individual Server Load Before Consolidation (24 Hours)' },
+  'consolidation.chartAfter': { ja: '統合時の仮想インフラ負荷', ko: '통합 시 가상 인프라 부하', en: 'Simulated Combined Server Load' },
+
+  // Drift subpage
+  'drift.pageTitle': { ja: '応答時間分布ドリフト分析', ko: '응답시간 분포 드리프트 분석', en: 'Response Time Distribution Drift Analysis' },
+  'drift.baselinePeriod': { ja: '基準期間 (Period A)', ko: '기준 기간 (Period A)', en: 'Baseline Period (Period A)' },
+  'drift.comparePeriod': { ja: '比較期間 (Period B)', ko: '비교 기간 (Period B)', en: 'Comparison Period (Period B)' },
+  'drift.avgDrift': { ja: '応答時間平均ドリフト', ko: '응답시간 평균 드리프트', en: 'Avg Response Drift' },
+  'drift.p95Drift': { ja: 'P95応答時間ドリフト', ko: 'P95 응답시간 드리프트', en: 'P95 Response Drift' },
+  'drift.shiftAmount': { ja: '分布曲線シフト量 (Shift)', ko: '분포 곡선 이동량 (Shift)', en: 'Distribution Shift' },
+  'drift.status': { ja: 'ドリフト診断ステータス', ko: '드리프트 진단 상태', en: 'Drift Diagnosis Status' },
+  'drift.chartTitle': { ja: '応答時間確率密度(Log-Normal)分布比較', ko: '응답시간 확률밀도(Log-Normal) 분포 비교', en: 'Response Time Probability Density (Log-Normal) Comparison' },
+  'drift.causeTitle': { ja: '性能ドリフト根本原因分析', ko: '성능 드리프트 근본 원인 분석', en: 'Performance Drift Root Cause Analysis' },
+
   'help.footer': {
     ja: '© 2026 JenniferSoft, Inc. All rights reserved.',
     ko: '© 2026 JenniferSoft, Inc. All rights reserved.',

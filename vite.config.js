@@ -35,7 +35,10 @@ export default defineConfig(() => {
                     capacity: 'capacity/index.html',
                     tuning: 'tuning/index.html',
                     anomaly: 'anomaly/index.html',
-                    report: 'report/index.html'
+                    report: 'report/index.html',
+                    leak: 'leak/index.html',
+                    consolidation: 'consolidation/index.html',
+                    drift: 'drift/index.html'
                 },
                 output: {
                     entryFileNames: 'pta/asserts/[name]-[hash].js',

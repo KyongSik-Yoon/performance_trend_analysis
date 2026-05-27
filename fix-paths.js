@@ -11,7 +11,10 @@ const files = [
     join(__dirname, 'dist/capacity/index.html'),
     join(__dirname, 'dist/tuning/index.html'),
     join(__dirname, 'dist/anomaly/index.html'),
-    join(__dirname, 'dist/report/index.html')
+    join(__dirname, 'dist/report/index.html'),
+    join(__dirname, 'dist/leak/index.html'),
+    join(__dirname, 'dist/consolidation/index.html'),
+    join(__dirname, 'dist/drift/index.html')
 ];
 
 files.forEach(file => {
