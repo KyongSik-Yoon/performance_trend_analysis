@@ -77,19 +77,22 @@ async function fetchMetricData(domainId, targetId, targetType, startTime, endTim
 }
 
 function estimateLogNormalParams(data) {
-  if (!data || data.length < 3) {
+  if (!data || data.length === 0) {
     return null;
   }
 
   const values = data.map(item => item.value).filter(val => val > 0);
-  if (values.length < 3) {
+  if (values.length === 0) {
     return null;
   }
 
   const logs = values.map(val => Math.log(val));
   const mu = logs.reduce((sum, val) => sum + val, 0) / logs.length;
   
-  let variance = logs.reduce((sum, val) => sum + Math.pow(val - mu, 2), 0) / (logs.length - 1);
+  let variance = 0.2;
+  if (logs.length > 1) {
+    variance = logs.reduce((sum, val) => sum + Math.pow(val - mu, 2), 0) / (logs.length - 1);
+  }
   if (isNaN(variance) || variance <= 0) {
     variance = 0.2;
   }
