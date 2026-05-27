@@ -37,6 +37,7 @@ const DICT = {
   'cpu.max': { ja: '最大CPU', ko: '최대 CPU', en: 'Max CPU' },
   'stats.avg': { ja: '平均', ko: '평균', en: 'Average' },
   'stats.mom': { ja: '前月比', ko: '전월 대비', en: 'MoM Change' },
+  'stats.generated': { ja: '作成日時', ko: '생성일시', en: 'Generated at' },
 
   // --- Summary cards ---
   'summary.period': { ja: '期間', ko: '기간', en: 'Period' },
