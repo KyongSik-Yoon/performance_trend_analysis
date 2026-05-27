@@ -203,6 +203,7 @@ function buildDomainTree(flatDomains) {
   return tree;
 }
 
+// 첫 번째 도메인 검색
 function findFirstDomain(nodes, path = []) {
   for (const node of nodes) {
     const currentPath = [...path, { id: node.id, name: node.name, type: node.type }];
@@ -549,12 +550,17 @@ function updateView() {
   const avgBeforeErr = getAverage(beforeData.err_rate);
   const avgAfterErr = getAverage(afterData.err_rate);
 
+  // CPU 데이터의 유효성 검사 (도메인 전체이거나 비즈니스 모드면 CPU 데이터가 수집되지 않음)
+  const hasBeforeCpu = beforeData.sys_cpu && beforeData.sys_cpu.length > 0 && beforeData.sys_cpu.some(d => (d.value || 0) > 0);
+  const hasAfterCpu = afterData.sys_cpu && afterData.sys_cpu.length > 0 && afterData.sys_cpu.some(d => (d.value || 0) > 0);
+  const hasCpuData = hasBeforeCpu && hasAfterCpu;
+
   // 리소스 효율성 (평균 CPU / TPS) -> 낮을수록 고효율 튜닝
-  const avgBeforeCpu = getAverage(beforeData.sys_cpu || []);
-  const avgAfterCpu = getAverage(afterData.sys_cpu || []);
+  const avgBeforeCpu = hasCpuData ? getAverage(beforeData.sys_cpu) : 0;
+  const avgAfterCpu = hasCpuData ? getAverage(afterData.sys_cpu) : 0;
   
-  const beforeEff = avgBeforeTPS > 0 ? (avgBeforeCpu / avgBeforeTPS) : 0;
-  const afterEff = avgAfterTPS > 0 ? (avgAfterCpu / avgAfterTPS) : 0;
+  const beforeEff = (hasCpuData && avgBeforeTPS > 0) ? (avgBeforeCpu / avgBeforeTPS) : 0;
+  const afterEff = (hasCpuData && avgAfterTPS > 0) ? (avgAfterCpu / avgAfterTPS) : 0;
 
   // 2. 카드 값 렌더링
   rtValEl.innerHTML = `${avgAfterRT.toFixed(1)} <span class="unit">ms</span>`;
@@ -566,11 +572,17 @@ function updateView() {
   errValEl.innerHTML = `${avgAfterErr.toFixed(2)} <span class="unit">%</span>`;
   renderDiff(errDiffEl, avgBeforeErr, avgAfterErr, 'down', '%');
 
-  effValEl.innerHTML = `${afterEff.toFixed(2)} <span class="unit">CPU/TPS</span>`;
-  renderDiff(effDiffEl, beforeEff, afterEff, 'down', '');
+  if (hasCpuData) {
+    effValEl.innerHTML = `${afterEff.toFixed(2)} <span class="unit">CPU/TPS</span>`;
+    renderDiff(effDiffEl, beforeEff, afterEff, 'down', '');
+  } else {
+    effValEl.innerHTML = `-`;
+    effDiffEl.innerHTML = `-`;
+    effDiffEl.className = 'change-rate';
+  }
 
   // 3. 한글 분석 리포트 연산
-  generateReports(avgBeforeRT, avgAfterRT, avgBeforeTPS, avgAfterTPS, avgBeforeErr, avgAfterErr, beforeEff, afterEff, avgBeforeCpu, avgAfterCpu);
+  generateReports(avgBeforeRT, avgAfterRT, avgBeforeTPS, avgAfterTPS, avgBeforeErr, avgAfterErr, beforeEff, afterEff, avgBeforeCpu, avgAfterCpu, hasCpuData);
 
   // 4. 오버레이 비교 차트 그리기
   renderOverlayChart(bList, aList);
@@ -617,7 +629,7 @@ function renderDiff(element, before, after, goodTrend, unit = '') {
 }
 
 // 한글/일본어/영어 진단 및 검증 리포트 자동 생성
-function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCpu) {
+function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCpu, hasCpuData) {
   const lang = getLang();
   
   // Before 리포트 생성
@@ -632,13 +644,15 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
     if (bErr > 2.0) {
       beforeList.push(`평균 에러율이 <strong>${bErr.toFixed(2)}%</strong>로 비교적 높아 특정 예외나 연결 장애가 서비스 품질을 악화시키는 주요 원인이었습니다.`);
     }
-    if (bCpu > 40) {
-      beforeList.push(`평균 CPU 사용률이 <strong>${bCpu.toFixed(1)}%</strong>로 비교적 높아 트랜잭션당 리소스 부하가 가중되고 있었습니다.`);
-    }
-    if (bEff > 5.0) {
-      beforeList.push(`자원 효율성이 <strong>${bEff.toFixed(2)} CPU/TPS</strong>로 측정되어, 적은 처리량(TPS)에 비해 CPU 연산 소모가 많았음을 드러냅니다.`);
-    } else {
-      beforeList.push(`리소스 효율성 지표가 ${bEff.toFixed(2)} 수준으로, 애플리케이션의 기본적인 구조 개선 여지가 충분했습니다.`);
+    if (hasCpuData) {
+      if (bCpu > 40) {
+        beforeList.push(`평균 CPU 사용률이 <strong>${bCpu.toFixed(1)}%</strong>로 비교적 높아 트랜잭션당 리소스 부하가 가중되고 있었습니다.`);
+      }
+      if (bEff > 5.0) {
+        beforeList.push(`자원 효율성이 <strong>${bEff.toFixed(2)} CPU/TPS</strong>로 측정되어, 적은 처리량(TPS)에 비해 CPU 연산 소모가 많았음을 드러냅니다.`);
+      } else {
+        beforeList.push(`리소스 효율성 지표가 ${bEff.toFixed(2)} 수준으로, 애플리케이션의 기본적인 구조 개선 여지가 충분했습니다.`);
+      }
     }
   } else if (lang === 'en') {
     if (bRT > 3000) {
@@ -649,13 +663,15 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
     if (bErr > 2.0) {
       beforeList.push(`Average error rate was relatively high at <strong>${bErr.toFixed(2)}%</strong>, indicating that application exceptions or network issues were affecting service quality.`);
     }
-    if (bCpu > 40) {
-      beforeList.push(`Average CPU usage was high at <strong>${bCpu.toFixed(1)}%</strong>, adding resource pressure per transaction.`);
-    }
-    if (bEff > 5.0) {
-      beforeList.push(`Resource efficiency was measured at <strong>${bEff.toFixed(2)} CPU/TPS</strong>, showing heavy CPU load per transaction.`);
-    } else {
-      beforeList.push(`Resource efficiency index was at ${bEff.toFixed(2)}, leaving room for standard structural optimization.`);
+    if (hasCpuData) {
+      if (bCpu > 40) {
+        beforeList.push(`Average CPU usage was high at <strong>${bCpu.toFixed(1)}%</strong>, adding resource pressure per transaction.`);
+      }
+      if (bEff > 5.0) {
+        beforeList.push(`Resource efficiency was measured at <strong>${bEff.toFixed(2)} CPU/TPS</strong>, showing heavy CPU load per transaction.`);
+      } else {
+        beforeList.push(`Resource efficiency index was at ${bEff.toFixed(2)}, leaving room for standard structural optimization.`);
+      }
     }
   } else { // default ja
     if (bRT > 3000) {
@@ -666,13 +682,15 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
     if (bErr > 2.0) {
       beforeList.push(`平均エラー率が <strong>${bErr.toFixed(2)}%</strong> と比較的高く、特定の例外や接続障害がサービス品質低下の主因でした。`);
     }
-    if (bCpu > 40) {
-      beforeList.push(`平均CPU使用率が <strong>${bCpu.toFixed(1)}%</strong> と比較的高く、トランザクションあたりのリソース負荷が加重されていました。`);
-    }
-    if (bEff > 5.0) {
-      beforeList.push(`リソース効率性が <strong>${bEff.toFixed(2)} CPU/TPS</strong> と算出され、低い処理量に対して過度なCPU消費があったことを示します。`);
-    } else {
-      beforeList.push(`リソース効率性指標は ${bEff.toFixed(2)} レベルで、基本的なアプリケーション構成の改善余地が存在していました。`);
+    if (hasCpuData) {
+      if (bCpu > 40) {
+        beforeList.push(`平均CPU使用率が <strong>${bCpu.toFixed(1)}%</strong> と比較的高く、トランザクションあたりのリソース負荷が加重されていました。`);
+      }
+      if (bEff > 5.0) {
+        beforeList.push(`リソース効率性が <strong>${bEff.toFixed(2)} CPU/TPS</strong> と算出され、低い処理量に対して過度なCPU消費があったことを示します。`);
+      } else {
+        beforeList.push(`リソース効率性指標は ${bEff.toFixed(2)} レベルで、基本的なアプリケーション構成의 改善余地が存在していました。`);
+      }
     }
   }
 
@@ -683,7 +701,10 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
   const rtImprovement = bRT > 0 ? ((bRT - aRT) / bRT) * 100 : 0;
   const tpsImprovement = bTPS > 0 ? ((aTPS - bTPS) / bTPS) * 100 : 0;
   const errReduction = bErr - aErr;
-  const effImprovement = bEff > 0 ? ((bEff - aEff) / bEff) * 100 : 0;
+  const effImprovement = (hasCpuData && bEff > 0) ? ((bEff - aEff) / bEff) * 100 : 0;
+
+  // 성능 저하(부작용) 발생 여부 체크: 응답 시간이 1% 이상 증가했거나 에러율이 0.2%p 이상 상승한 경우
+  const isDegraded = rtImprovement < -1 || errReduction < -0.2;
 
   if (lang === 'ko') {
     if (rtImprovement > 15) {
@@ -699,13 +720,17 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
     if (errReduction > 1.0) {
       verdictList.push(`에러율이 <strong>${errReduction.toFixed(2)}%p 감소</strong>하여 트랜잭션 성공 신뢰도가 한층 보강되었습니다.`);
     }
-    if (effImprovement > 15) {
+    if (hasCpuData && effImprovement > 15) {
       verdictList.push(`자원 효율이 <strong>${effImprovement.toFixed(1)}% 향상(CPU/TPS 감소)</strong>되어 동일 서버 하드웨어 스펙에서 처리 가능한 효율이 증명되었습니다.`);
     }
     if (verdictList.length === 0) {
       verdictList.push(`개선 전후의 뚜렷한 성능 격차가 감지되지 않았습니다. 분석 기간을 재지정하거나 튜닝 소스 배포 시점을 재확인하십시오.`);
     } else {
-      verdictList.unshift(`<strong>[종합 판정]</strong> 성능 튜닝 및 애플리케이션 배포 결과, 주요 서비스 응답성 및 인프라 비용 효율 면에서 확실한 성과가 증명되어 배포 타당성을 확보했습니다.`);
+      if (isDegraded) {
+        verdictList.unshift(`<strong>[종합 판정]</strong> 성능 튜닝 및 애플리케이션 배포 결과, 응답 지연 또는 에러율 상승 등 성능 역전 현상이 감지되었습니다. 튜닝 코드의 부작용이나 인프라 설정 오류 가능성이 있으므로 배포를 재검토하십시오.`);
+      } else {
+        verdictList.unshift(`<strong>[종합 판정]</strong> 성능 튜닝 및 애플리케이션 배포 결과, 주요 서비스 응답성 및 인프라 비용 효율 면에서 확실한 성과가 증명되어 배포 타당성을 확보했습니다.`);
+      }
     }
   } else if (lang === 'en') {
     if (rtImprovement > 15) {
@@ -721,13 +746,17 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
     if (errReduction > 1.0) {
       verdictList.push(`Error rate <strong>decreased by ${errReduction.toFixed(2)}%p</strong>, ensuring transaction reliability.`);
     }
-    if (effImprovement > 15) {
+    if (hasCpuData && effImprovement > 15) {
       verdictList.push(`Resource efficiency <strong>improved by ${effImprovement.toFixed(1)}%</strong> (reduced CPU/TPS cost), proving system efficiency.`);
     }
     if (verdictList.length === 0) {
       verdictList.push(`No significant performance difference detected. Check the analysis range or tuning deployment time.`);
     } else {
-      verdictList.unshift(`<strong>[Final Verdict]</strong> Tuning results confirmed solid performance improvement in latency and hardware utilization cost.`);
+      if (isDegraded) {
+        verdictList.unshift(`<strong>[Final Verdict]</strong> Performance degradation or increased error rates detected after tuning/deployment. Reconsider deployment and investigate potential side-effects in the code or configuration.`);
+      } else {
+        verdictList.unshift(`<strong>[Final Verdict]</strong> Tuning results confirmed solid performance improvement in latency and hardware utilization cost.`);
+      }
     }
   } else { // default ja
     if (rtImprovement > 15) {
@@ -743,13 +772,17 @@ function generateReports(bRT, aRT, bTPS, aTPS, bErr, aErr, bEff, aEff, bCpu, aCp
     if (errReduction > 1.0) {
       verdictList.push(`エラー率が <strong>${errReduction.toFixed(2)}%p 低減</strong>し、トランザクションの信頼性が向上しました。`);
     }
-    if (effImprovement > 15) {
+    if (hasCpuData && effImprovement > 15) {
       verdictList.push(`リソース効率が <strong>${effImprovement.toFixed(1)}% 向上 (CPU/TPSの削減)</strong>し、費用対効果の高い処理能力が実証されました。`);
     }
     if (verdictList.length === 0) {
       verdictList.push(`前後で明確な性能差異が検出されませんでした。期間の再設定や配備日時を再確認してください。`);
     } else {
-      verdictList.unshift(`<strong>[総合判定]</strong> チューニングの結果、サービスの応答性とハードウェアコスト効率の両面で顕著な改善が実証され、配備妥当性が確保されました。`);
+      if (isDegraded) {
+        verdictList.unshift(`<strong>[総合判定]</strong> チューニングおよびアプリケーション配備の結果、応答遅延やエラー率の上昇など性能の悪化が検出されました。コードの副作用や設定ミスの可能性があるため、配備の再検討を推奨します。`);
+      } else {
+        verdictList.unshift(`<strong>[総合判定]</strong> チューニングの結果、サービスの応答性とハードウェアコスト効率の両面で顕著な改善が実証され、配備妥当性が確保されました。`);
+      }
     }
   }
 
